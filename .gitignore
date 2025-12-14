@@ -1,7 +1,19 @@
-# Ignore all node_modules 
+# Node
 node_modules/
 
-# Next.js build output
+# Next.js
 .next/
 out/
 
+# Electron build
+dist/
+
+# Python
+python/.venv/
+
+# Database (local data)
+database/*.db
+
+# OS
+.DS_Store
+desktop.ini

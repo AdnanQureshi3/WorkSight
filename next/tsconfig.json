@@ -30,7 +30,7 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts",
     // 💡 ADD THIS LINE 
-    "../types/**/*.d.ts" 
+    "types/**/*.d.ts" 
   ],
   "exclude": ["node_modules"]
 }
