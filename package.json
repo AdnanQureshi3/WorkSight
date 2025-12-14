@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev:next": "cd next && npm run dev",
-      "build:preload": "tsc electron/preload.ts --target ES2017 --module commonjs --outDir electron",
+      "build:preload": "tsc electron/preload.ts --target ES2017 --module commonjs --outDir electron --skipLibCheck",
      "dev:electron": "electron --require ts-node/register electron/main.mts"
 
   },

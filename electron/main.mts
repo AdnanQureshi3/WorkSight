@@ -2,6 +2,10 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { spawn } from "child_process";
 import Database from "better-sqlite3";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let win: BrowserWindow;
 let trackerProcess: any = null;
