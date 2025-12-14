@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev:next": "cd next && npm run dev",
-    "dev:electron": "electron -r ts-node/register electron/main.ts"
+     "dev:electron": "electron --require ts-node/register electron/main.mts"
 
   },
   "keywords": [],
