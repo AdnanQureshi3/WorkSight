@@ -4,9 +4,8 @@
   "main": "index.js",
   "scripts": {
     "dev:next": "cd next && npm run dev",
-      "build:preload": "tsc electron/preload.ts --target ES2017 --module commonjs --outDir electron --skipLibCheck",
-     "dev:electron": "electron --require ts-node/register electron/main.mts"
-
+    "build:preload": "tsc electron/preload.ts --target ES2017 --module commonjs --outDir electron --skipLibCheck",
+    "dev:electron": "electron --require ts-node/register electron/main.mts"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +15,7 @@
     "@types/node": "^25.0.1",
     "electron": "^39.2.7",
     "electron-builder": "^26.0.12",
+    "electron-rebuild": "^3.2.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
