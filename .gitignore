@@ -10,6 +10,8 @@ dist/
 
 # Python
 python/.venv/
+python/venv/
+
 
 # Database (local data)
 database/*.db

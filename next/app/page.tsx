@@ -11,7 +11,6 @@ export default function Page() {
     console.log("Available Electron API:", window.electronAPI);
   }
   
-
   return (
     <div className="p-6 space-y-4">
       <div className="space-x-2">
