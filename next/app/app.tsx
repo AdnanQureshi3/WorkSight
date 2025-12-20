@@ -5,6 +5,8 @@ import { useState, useEffect, useMemo } from "react";
 import DashboardView from "./components/DashboardView";
 import GoalsView from "./components/GoalsView";
 import SideBar from "./components/SideBar";
+import HistoryView  from "./components/HistoryView";
+import DetailView  from "./components/DetailView";
 
 
 
@@ -19,14 +21,14 @@ export default function App() {
       <main className="ml-64 flex-1 p-8">
         {view === "dashboard" && (
           <DashboardView
-         
             setView={setView}
           />
         )}
 
         {view === "goals" && <GoalsView setView={setView} />}
         
-     
+        {view === "history" && <HistoryView setView={setView} />}
+        {view === "detail" && <DetailView setView={setView} />}
       </main>
     </div>
   );
