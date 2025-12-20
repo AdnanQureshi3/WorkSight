@@ -3,6 +3,7 @@ import path from "path";
 import { spawn } from "child_process";
 import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
+import { getDailyCategorySummary, getAppUsage, getYouTubeBreakdown } from "./db.js"; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,15 +26,26 @@ app.whenReady().then(() => {
 // START tracking
 ipcMain.handle("start-tracking", () => {
   if (trackerProcess) return "Already running";
+  const parentDir = path.resolve(__dirname, "..");
+  // const parentDir = path.dirname(__dirname); //both work and gives same result
 
   const pythonPath = path.join(
-    __dirname,
-    "../python/.venv/Scripts/python.exe"
+    parentDir,
+    "../python/venv/Scripts/python.exe"
   );
 
-  const scriptPath = path.join(__dirname, "../python/tracker.py");
+  const scriptPath = path.join(parentDir, "../python/tracker.py");
+  console.log("python Path:", pythonPath);
+  console.log("Starting tracker with script:", scriptPath);
 
-  trackerProcess = spawn(pythonPath, [scriptPath]);
+  trackerProcess = spawn(pythonPath, [scriptPath], {
+  windowsHide: true
+});
+
+trackerProcess.on("error", (err:Error) => {
+  console.error("Spawn error:", err);
+});
+
   return "Tracking started";
 });
 
@@ -45,16 +57,26 @@ ipcMain.handle("stop-tracking", () => {
   return "Tracking stopped";
 });
 
-// READ data
-ipcMain.handle("get-data", () => {
-  const db = new Database(
-    path.join(__dirname, "../database/worksight.db")
-  );
 
-  const rows = db
-    .prepare("SELECT * FROM activity ORDER BY id DESC LIMIT 10")
-    .all();
 
-  db.close();
-  return rows;
+//get daily summary
+ipcMain.handle("get-daily-summary", (event, date: string) => {
+  // const dat = "2025-12-18";
+  console.log("Fetching daily summary for date:", date);
+  const result = getDailyCategorySummary(date);
+  console.log("Daily summary result:", result);
+  return result;
+   
+});
+
+//get app usage
+ipcMain.handle("get-app-usage", (event, date: string) => {
+  console.log("Fetching app usage for date:", date);
+  return  getAppUsage(date);
+});
+
+//get YouTube breakdown
+ipcMain.handle("get-youtube-breakdown", (event, date: string) => {
+  console.log("Fetching YouTube breakdown for date:", date);
+ return   getYouTubeBreakdown(date);
 });

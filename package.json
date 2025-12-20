@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev:next": "cd next && npm run dev",
-    "build:preload": "tsc electron/preload.ts --target ES2017 --module commonjs --outDir electron --skipLibCheck",
-    "dev:electron": "electron --require ts-node/register electron/main.mts"
-  },
+  "dev:next": "cd next && npm run dev",
+  "build:electron": "tsc -p electron",
+  "dev:electron": "npm run build:electron && electron electron/dist/main.mjs"
+},
+
   "keywords": [],
   "author": "",
   "license": "ISC",

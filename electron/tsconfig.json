@@ -1,19 +1,18 @@
 {
   "compilerOptions": {
-    "target": "ES2020",         // Use a modern JavaScript target
-    "module": "ESNext",         // 💡 CRITICAL: Output ES Modules (fixes import.meta.url error)
-    "moduleResolution": "Node", 
+    "target": "ES2020",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
-    "outDir": "dist",           // Put compiled JavaScript files into 'electron/dist'
+    "outDir": "dist",
     "rootDir": ".",
-    "types": ["node", "electron"] 
+    "types": ["node", "electron"]
   },
   "include": [
-    "**/*.ts"
+    "**/*.ts",
+    "**/*.mts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

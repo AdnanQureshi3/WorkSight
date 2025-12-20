@@ -43,9 +43,9 @@ def classify(app_name, domain, title):
         if any(k in title for k in ["tutorial", "course", "lecture", "react", "python"]):
             return "work"
         elif any(k in title for k in ["music", "podcast"]):
-            return "neutral"
-        else:
             return "distraction"
+        else:
+            return "neutral"
 
     return "neutral"
 
