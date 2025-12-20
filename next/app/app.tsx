@@ -7,6 +7,7 @@ import GoalsView from "./components/GoalsView";
 import SideBar from "./components/SideBar";
 import HistoryView  from "./components/HistoryView";
 import DetailView  from "./components/DetailView";
+import PythonTracker from "./components/PythonTracker";
 
 
 
@@ -30,6 +31,7 @@ export default function App() {
         {view === "history" && <HistoryView setView={setView} />}
         {view === "detail" && <DetailView setView={setView} />}
       </main>
+      <PythonTracker />
     </div>
   );
 }
