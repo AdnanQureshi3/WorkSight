@@ -14,17 +14,10 @@ export type ParsedActivity = {
 };
 
 export type DashboardViewProps = {
-  nickname: string;
-  aiAnalysis: {
-    score: number;
-    summary: string;
-    suggestion: string;
-  } | null;
-  isAnalyzing: boolean;
-  chatInput: string;
-  setChatInput: (v: string) => void;
-  chatResponse: string;
-  handleAskAI: () => void;
-  parsedActivities: ParsedActivity[];
+ 
   setView: (v: "dashboard" | "goals" | "history" | "detail") => void;
+};
+export type SideBarProps = {
+    view: "dashboard" | "goals" | "history" | "detail";
+    setView: (v: "dashboard" | "goals" | "history" | "detail") => void;
 };
