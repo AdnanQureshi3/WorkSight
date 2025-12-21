@@ -18,6 +18,8 @@ export type DashboardViewProps = {
   setView: (v: "dashboard" | "goals" | "history" | "detail" | "profile") => void;
 };
 export type SideBarProps = {
+ setRefresh: React.Dispatch<React.SetStateAction<boolean>>
+
     view: "dashboard" | "goals" | "history" | "detail" | "profile";
     setView: (v: "dashboard" | "goals" | "history" | "detail" | "profile") => void;
 };

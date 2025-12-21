@@ -16,16 +16,18 @@ export default function App() {
   >("dashboard");
 
   const [dayAppUsage, setDayAppUsage] = useState<any[]>([]);
+  const [refresh, setRefresh] = useState<boolean>(false);
+
 
   // 🔹 FETCH ONCE
   useEffect(() => {
     const today = new Date().toISOString().slice(0, 10);
     window.electronAPI.getDayAppUsage(today).then(setDayAppUsage);
-  }, []);
+  }, [refresh]);
 
   return (
     <div className="flex min-h-screen bg-[#0c1021] text-slate-200">
-      <SideBar view={view} setView={setView} />
+      <SideBar setRefresh={setRefresh} view={view} setView={setView} />
 
       <main className="ml-64 flex-1 p-8">
         {view === "dashboard" && (

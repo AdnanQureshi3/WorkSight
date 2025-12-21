@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { LayoutDashboard, Target, History, User } from "lucide-react";
 import { SideBarProps } from "../../types/types";
 
-function SideBar({ view, setView }: SideBarProps) {
+function SideBar({ setRefresh, view, setView }: SideBarProps) {
   const [isTracking, setIsTracking] = useState(false);
   const toggleTracking = () => {
    console.log("Toggling tracking. Current state:", isTracking);
@@ -53,6 +53,16 @@ function SideBar({ view, setView }: SideBarProps) {
           </button>
         ))}
       </nav>
+      <div className="px-4 pb-4">
+  <button
+    onClick={() => setRefresh(prev => !prev)}
+    className="w-full py-2 rounded-lg text-sm font-semibold
+               bg-slate-800 text-slate-300 hover:bg-slate-700 transition"
+  >
+    Refresh Data
+  </button>
+</div>
+
 
       {/* Start / Stop Tracking */}
       <div className="px-4 pb-4">
