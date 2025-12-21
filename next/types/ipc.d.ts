@@ -3,6 +3,8 @@ export interface IElectronAPI {
   stopTracking: () => Promise<string>;
   getData: () => Promise<any[]>;
   getDailySummary: (date: string) => Promise<any[]>;
+  updateUserProfile: (profileData: any) => Promise<void>;
+  getUserProfile: () => Promise<any>;
 }
 
 declare global {

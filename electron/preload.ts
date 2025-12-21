@@ -6,4 +6,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   stopTracking: () => ipcRenderer.invoke("stop-tracking"),
   getData: () => ipcRenderer.invoke("get-data"),
   getDailySummary: (date:String) => ipcRenderer.invoke("get-daily-summary" , date),
+  updateUserProfile: (profileData: any) => ipcRenderer.invoke("update-user-profile", profileData),
+  getUserProfile: () => ipcRenderer.invoke("get-user-profile"),
 });

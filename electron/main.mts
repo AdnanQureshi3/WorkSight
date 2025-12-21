@@ -3,7 +3,7 @@ import path from "path";
 import { spawn } from "child_process";
 import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
-import { getDailyCategorySummary, getAppUsage, getYouTubeBreakdown } from "./db.js"; 
+import { getDailyCategorySummary, getAppUsage, getYouTubeBreakdown, updateUserProfile, getUserProfile } from "./db.js"; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -61,10 +61,7 @@ ipcMain.handle("stop-tracking", () => {
 
 //get daily summary
 ipcMain.handle("get-daily-summary", (event, date: string) => {
-  // const dat = "2025-12-18";
-  console.log("Fetching daily summary for date:", date);
   const result = getDailyCategorySummary(date);
-  console.log("Daily summary result:", result);
   return result;
    
 });
@@ -79,4 +76,15 @@ ipcMain.handle("get-app-usage", (event, date: string) => {
 ipcMain.handle("get-youtube-breakdown", (event, date: string) => {
   console.log("Fetching YouTube breakdown for date:", date);
  return   getYouTubeBreakdown(date);
+});
+
+
+//user functions
+ipcMain.handle("update-user-profile", (event, profileData: any) => { 
+  console.log("Updating user profile with data:", profileData);  
+  updateUserProfile(profileData);
+});
+ipcMain.handle("get-user-profile", (event) => { 
+  console.log("Getting user profile");
+  return getUserProfile();
 });

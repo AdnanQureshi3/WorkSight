@@ -8,11 +8,13 @@ import SideBar from "./components/SideBar";
 import HistoryView  from "./components/HistoryView";
 import DetailView  from "./components/DetailView";
 import PythonTracker from "./components/PythonTracker";
+import Profile from "./components/Profile";
 
 
 
 export default function App() {
-  const [view, setView] = useState<"dashboard" | "goals" | "history" | "detail">("dashboard");
+  const [view, setView] = useState<"dashboard" | "goals" | "history" | "detail" | "profile">("dashboard");
+  
 
   return (
     <div className="flex min-h-screen bg-[#0c1021] text-slate-200">
@@ -30,6 +32,7 @@ export default function App() {
         
         {view === "history" && <HistoryView setView={setView} />}
         {view === "detail" && <DetailView setView={setView} />}
+        {view === "profile" && <Profile setView={setView} />}
       </main>
       <PythonTracker />
     </div>

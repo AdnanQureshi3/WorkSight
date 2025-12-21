@@ -15,9 +15,15 @@ export type ParsedActivity = {
 
 export type DashboardViewProps = {
  
-  setView: (v: "dashboard" | "goals" | "history" | "detail") => void;
+  setView: (v: "dashboard" | "goals" | "history" | "detail" | "profile") => void;
 };
 export type SideBarProps = {
-    view: "dashboard" | "goals" | "history" | "detail";
-    setView: (v: "dashboard" | "goals" | "history" | "detail") => void;
+    view: "dashboard" | "goals" | "history" | "detail" | "profile";
+    setView: (v: "dashboard" | "goals" | "history" | "detail" | "profile") => void;
+};
+
+
+export type ProfileProps = {
+ 
+  setView: (v: "dashboard" | "goals" | "history" | "detail" | "profile") => void;
 };

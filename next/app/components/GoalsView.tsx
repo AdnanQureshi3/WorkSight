@@ -5,7 +5,7 @@ const DUMMY_GOALS = [
     { name: "Documentation", current: 75, target: 100, unit: "%" },
     { name: "Limit Distractions", current: 0.8, target: 1, unit: "hrs" },
 ];
-export default function GoalsView( { setView }: { setView: (v: "dashboard" | "goals" | "history" | "detail") => void }) { 
+export default function GoalsView( { setView }: { setView: (v: "dashboard" | "goals" | "history" | "detail" | "profile") => void }) { 
 
     return ( 
           <div className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-500">
