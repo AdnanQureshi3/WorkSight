@@ -5,10 +5,9 @@ import psutil as ps
 import win32gui
 import win32process
 import os
-import re
+import json
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "../database/worksight.db")
-
 
 def get_active_app():
     try:
@@ -19,36 +18,75 @@ def get_active_app():
     except:
         return "Unknown", "Unknown"
 
-
-def extract_domain(title: str | None):
+def extract_domain(title):
     if not title:
         return None
-    match = re.search(r"(youtube\.com|leetcode\.com|instagram\.com)", title.lower())
-    return match.group(1) if match else None
+    title = title.lower()
+    if "youtube" in title:
+        return "youtube.com"
+    if "instagram" in title:
+        return "instagram.com"
+    if "leetcode" in title:
+        return "leetcode.com"
+    return None
 
+def extract_app_name_from_title(title, app_name):
+    if not title:
+        return app_name
 
-def classify(app_name, domain, title):
+    t = title.lower()
+    if "youtube" in t:
+        return "YouTube"
+    if "instagram" in t:
+        return "Instagram"
+    if "leetcode" in t:
+        return "LeetCode"
+
+    return app_name  # fallback (Chrome, VSCode, etc.)
+
+def load_user_rules(conn):
+    cur = conn.cursor()
+    row = cur.execute(
+        "SELECT productive_apps, distraction_apps, neutral_apps FROM user_profile WHERE id = 1"
+    ).fetchone()
+
+    if not row:
+        return [], [], []
+
+    return (
+        json.loads(row[0] or "[]"),
+        json.loads(row[1] or "[]"),
+        json.loads(row[2] or "[]"),
+    )
+
+def classify(app_name, domain, title, rules):
+    productive, distraction, neutral = rules
+    app = app_name.lower()
     title = title.lower() if title else ""
+
+    def matches(rule_list):
+        return any(k.lower() in app or k.lower() in title for k in rule_list)
+
+    if matches(productive):
+        return "work"
+    if matches(distraction):
+        return "distraction"
+    if matches(neutral):
+        return "neutral"
 
     if domain == "instagram.com":
         return "distraction"
-
     if domain == "leetcode.com":
         return "work"
 
-    if "code" in app_name.lower():
-        return "work"
-
-    if domain == "youtube.com" or "youtube" in title:
-        if any(k in title for k in ["tutorial", "course", "lecture", "react", "python"]):
+    if domain == "youtube.com":
+        if any(k in title for k in ["tutorial", "course", "lecture", "python", "react"]):
             return "work"
-        elif any(k in title for k in ["music", "podcast"]):
+        if any(k in title for k in ["music", "song", "podcast"]):
             return "distraction"
-        else:
-            return "neutral"
+        return "neutral"
 
     return "neutral"
-
 
 def main():
     conn = sqlite3.connect(DB_PATH)
@@ -68,7 +106,8 @@ def main():
     """)
     conn.commit()
 
-    print("TRACKING_STARTED")
+    rules = load_user_rules(conn)
+    print("Loaded user rules:", rules)
 
     last_app, last_title = get_active_app()
     last_domain = extract_domain(last_title)
@@ -80,19 +119,20 @@ def main():
             app, title = get_active_app()
 
             if app != last_app or title != last_title:
-                print(f"SWITCHED_From: {last_app} - {last_domain} - {last_title} To: {app} - {extract_domain(title)} - {title} ")
-                end_time = datetime.datetime.now()##ending the session
+                print(f"Switched from {last_app} - {last_title} to {app} - {title}")
+                end_time = datetime.datetime.now()
                 duration = int((end_time - start_time).total_seconds())
 
                 if duration >= 5:
-                    category = classify(last_app, last_domain, last_title)
+                    logical_app = extract_app_name_from_title(last_title, last_app)
+                    category = classify(logical_app, last_domain, last_title, rules)
 
                     cur.execute("""
                         INSERT INTO activity_log
                         (app_name, window_title, domain, start_time, end_time, duration_sec, category)
                         VALUES (?, ?, ?, ?, ?, ?, ?)
                     """, (
-                        last_app,
+                        logical_app,
                         last_title,
                         last_domain,
                         start_time.isoformat(),
@@ -112,13 +152,15 @@ def main():
         duration = int((end_time - start_time).total_seconds())
 
         if duration >= 5:
-            category = classify(last_app, last_domain, last_title)
+            logical_app = extract_app_name_from_title(last_title, last_app)
+            category = classify(logical_app, last_domain, last_title, rules)
+
             cur.execute("""
                 INSERT INTO activity_log
                 (app_name, window_title, domain, start_time, end_time, duration_sec, category)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (
-                last_app,
+                logical_app,
                 last_title,
                 last_domain,
                 start_time.isoformat(),
@@ -129,8 +171,6 @@ def main():
             conn.commit()
 
         conn.close()
-        print("TRACKING_STOPPED")
-
 
 if __name__ == "__main__":
     main()
