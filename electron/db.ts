@@ -33,62 +33,95 @@ export function getYouTubeBreakdown(date: string) {
     GROUP BY category
   `).all(date);
 }
+export function updateUserProfile(profileData: any) {
+  ensureUserProfileTable();
 
-export function updateUserProfile(profileData: any) {   
-  if (!isTableExists("user_profile")) {
-  createUserProfileTable();
-}
-console.log("db:", profileData);
   return db.prepare(`
     UPDATE user_profile
-    SET username = ?,
-        agent_nickname = ?,
-        email = ?,
-        system_prompt = ?,
-        final_goal = ?
+    SET
+      username = ?,
+      agent_nickname = ?,
+      email = ?,
+      system_prompt = ?,
+      final_goal = ?,
+      productive_apps = ?,
+      distraction_apps = ?,
+      neutral_apps = ?
     WHERE id = 1
-  `).run(profileData.username, profileData.agent_nickname, profileData.email, profileData.system_prompt, profileData.final_goal);
+  `).run(
+    profileData.username,
+    profileData.agent_nickname,
+    profileData.email,
+    profileData.system_prompt,
+    profileData.final_goal,
+    JSON.stringify(profileData.productive_apps || []),
+    JSON.stringify(profileData.distraction_apps || []),
+    JSON.stringify(profileData.neutral_apps || [])
+  );
 }
 
+/* ---------- SAFE TABLE + COLUMN ENSURE ---------- */
 
-function isTableExists(tableName: string): boolean {
-  const row = db.prepare(`
-    SELECT 1 FROM sqlite_master
-    WHERE type='table' AND name = ?
-  `).get(tableName);
-
-  return !!row;
-}
-function createUserProfileTable() {
+function ensureUserProfileTable() {
+  // create table safely
   db.prepare(`
-    CREATE TABLE user_profile (
+    CREATE TABLE IF NOT EXISTS user_profile (
       id INTEGER PRIMARY KEY,
       username TEXT,
       agent_nickname TEXT,
       email TEXT,
       system_prompt TEXT,
-      final_goal TEXT
+      final_goal TEXT,
+      productive_apps TEXT,
+      distraction_apps TEXT,
+      neutral_apps TEXT
     )
   `).run();
 
-  db.prepare(`INSERT INTO user_profile (id) VALUES (1)`).run();
+  // ensure row
+  db.prepare(`
+    INSERT OR IGNORE INTO user_profile (id)
+    VALUES (1)
+  `).run();
+
+  // ensure columns (OLD DB FIX)
+  const cols = db
+    .prepare(`PRAGMA table_info(user_profile)`)
+    .all()
+    .map((c: any) => c.name);
+
+  if (!cols.includes("productive_apps"))
+    db.prepare(
+      `ALTER TABLE user_profile ADD COLUMN productive_apps TEXT DEFAULT '[]'`
+    ).run();
+
+  if (!cols.includes("distraction_apps"))
+    db.prepare(
+      `ALTER TABLE user_profile ADD COLUMN distraction_apps TEXT DEFAULT '[]'`
+    ).run();
+
+  if (!cols.includes("neutral_apps"))
+    db.prepare(
+      `ALTER TABLE user_profile ADD COLUMN neutral_apps TEXT DEFAULT '[]'`
+    ).run();
 }
 
 
 export function getUserProfile() {
-  if (!isTableExists("user_profile")) {
-    createUserProfileTable();
-    updateUserProfile({
-      username: "User",
-      agent_nickname: "AI Assistant",
-      email: "",
-      system_prompt: "Help me stay focused, disciplined, and productive.",
-      final_goal: "",
-    });
-  }
+  ensureUserProfileTable();
 
-  return db.prepare("SELECT * FROM user_profile WHERE id = 1").get();
+  const row = db.prepare(
+    "SELECT * FROM user_profile WHERE id = 1"
+  ).get();
+
+  return {
+    ...row,
+    productive_apps: JSON.parse(row.productive_apps || "[]"),
+    distraction_apps: JSON.parse(row.distraction_apps || "[]"),
+    neutral_apps: JSON.parse(row.neutral_apps || "[]"),
+  };
 }
+
 
 export function getDaySummary(date: string) {
   return db.prepare(`
