@@ -27,4 +27,20 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   stopTracking: () =>
     ipcRenderer.send("stop-tracking"),
+
+
+  // -------- GOALS --------
+  getGoals: () => ipcRenderer.invoke("get-goals"),
+
+  addGoal: (goal: {
+    name: string;
+    target: number;
+    unit: string;
+  }) => ipcRenderer.invoke("add-goal", goal),
+
+  updateGoalProgress: (id: number, current: number) =>
+    ipcRenderer.invoke("update-goal-progress", id, current),
+
+  deleteGoal: (id: number) =>
+    ipcRenderer.invoke("delete-goal", id),
 });

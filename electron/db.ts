@@ -135,3 +135,46 @@ export function getMonthSummary(year: number, month: number) {
     ORDER BY day
   `).all(String(year), String(month).padStart(2, "0"));
 }
+
+
+
+//Goal and habit functions can be added here in the future
+export function ensureGoalsTable() {
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS goals (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      current REAL DEFAULT 0,
+      target REAL NOT NULL,
+      unit TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+}
+export function getGoals() {
+  ensureGoalsTable();
+  return db.prepare(`SELECT * FROM goals ORDER BY created_at DESC`).all();
+}
+
+export function addGoal(goal: {
+  name: string;
+  target: number;
+  unit: string;
+}) {
+  ensureGoalsTable();
+  return db.prepare(`
+    INSERT INTO goals (name, target, unit)
+    VALUES (?, ?, ?)
+  `).run(goal.name, goal.target, goal.unit);
+}
+export function updateGoalProgress(id: number, current: number) {
+  return db.prepare(`
+    UPDATE goals
+    SET current = ?
+    WHERE id = ?
+  `).run(current, id);
+}
+
+export function deleteGoal(id: number) {
+  return db.prepare(`DELETE FROM goals WHERE id = ?`).run(id);
+}

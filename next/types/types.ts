@@ -27,3 +27,10 @@ export type ProfileProps = {
  
   setView: (v: "dashboard" | "goals" | "history" | "detail" | "profile") => void;
 };
+export interface Goal {
+  id: number;
+  name: string;
+  current: number;
+  target: number;
+  unit: string;
+}

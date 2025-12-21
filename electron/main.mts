@@ -3,7 +3,7 @@ import path from "path";
 import { spawn } from "child_process";
 import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
-import { getDailyCategorySummary, getAppUsage, getYouTubeBreakdown, updateUserProfile, getUserProfile } from "./db.js"; 
+import { getDailyCategorySummary, getAppUsage, getYouTubeBreakdown, updateUserProfile, getUserProfile, getGoals, addGoal, updateGoalProgress, deleteGoal } from "./db.js"; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -85,4 +85,22 @@ ipcMain.handle("update-user-profile", (event, profileData: any) => {
 ipcMain.handle("get-user-profile", (event) => { 
   console.log("Getting user profile");
   return getUserProfile();
+});
+
+
+//Goal func
+ipcMain.handle("get-goals", () => {
+  return getGoals();
+});
+
+ipcMain.handle("add-goal", (_, goal) => {
+  return addGoal(goal);
+});
+
+ipcMain.handle("update-goal-progress", (_, id, current) => {
+  return updateGoalProgress(id, current);
+});
+
+ipcMain.handle("delete-goal", (_, id) => {
+  return deleteGoal(id);
 });
