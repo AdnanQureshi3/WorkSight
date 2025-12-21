@@ -1,39 +1,46 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 
 import DashboardView from "./components/DashboardView";
 import GoalsView from "./components/GoalsView";
 import SideBar from "./components/SideBar";
-import HistoryView  from "./components/HistoryView";
-import DetailView  from "./components/DetailView";
+import HistoryView from "./components/HistoryView";
+import DetailView from "./components/DetailView";
 import PythonTracker from "./components/PythonTracker";
 import Profile from "./components/Profile";
 
-
-
 export default function App() {
-  const [view, setView] = useState<"dashboard" | "goals" | "history" | "detail" | "profile">("dashboard");
-  
+  const [view, setView] = useState<
+    "dashboard" | "goals" | "history" | "detail" | "profile"
+  >("dashboard");
+
+  const [dayAppUsage, setDayAppUsage] = useState<any[]>([]);
+
+  // 🔹 FETCH ONCE
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    window.electronAPI.getDayAppUsage(today).then(setDayAppUsage);
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-[#0c1021] text-slate-200">
-        <SideBar view={view} setView={setView} />
-    
+      <SideBar view={view} setView={setView} />
 
       <main className="ml-64 flex-1 p-8">
         {view === "dashboard" && (
-          <DashboardView
-            setView={setView}
-          />
+          <DashboardView data={dayAppUsage} setView={setView} />
+        )}
+
+        {view === "detail" && (
+          <DetailView data={dayAppUsage} setView={setView} />
         )}
 
         {view === "goals" && <GoalsView setView={setView} />}
-        
         {view === "history" && <HistoryView setView={setView} />}
-        {view === "detail" && <DetailView setView={setView} />}
         {view === "profile" && <Profile setView={setView} />}
       </main>
+
       <PythonTracker />
     </div>
   );

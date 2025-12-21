@@ -24,7 +24,7 @@ app.whenReady().then(() => {
 });
 
 // START tracking
-ipcMain.handle("start-tracking", () => {
+ipcMain.on("start-tracking", () => {
   console.log("Start tracking requested");
   if (trackerProcess) return "Already running";
   const parentDir = path.resolve(__dirname, "..");
@@ -51,7 +51,7 @@ trackerProcess.on("error", (err:Error) => {
 });
 
 // STOP tracking
-ipcMain.handle("stop-tracking", () => {
+ipcMain.on("stop-tracking", () => {
   if (!trackerProcess) return "Not running";
   trackerProcess.kill();
   trackerProcess = null;
@@ -59,25 +59,22 @@ ipcMain.handle("stop-tracking", () => {
 });
 
 
-
-//get daily summary
-ipcMain.handle("get-daily-summary", (event, date: string) => {
-  const result = getDailyCategorySummary(date);
-  return result;
-   
+ipcMain.handle("get-day-summary", (event, date: string) => {
+  console.log("Getting day summary for date:", date);
+  return getDailyCategorySummary(date);
 });
-
-//get app usage
-ipcMain.handle("get-app-usage", (event, date: string) => {
-  console.log("Fetching app usage for date:", date);
-  return  getAppUsage(date);
+ipcMain.handle("get-week-summary", (event, startDate: string, endDate: string) => {
+  console.log("Getting week summary from", startDate, "to", endDate);
+  // Implement week summary retrieval logic here
 });
-
-//get YouTube breakdown
-ipcMain.handle("get-youtube-breakdown", (event, date: string) => {
-  console.log("Fetching YouTube breakdown for date:", date);
- return   getYouTubeBreakdown(date);
+ipcMain.handle("get-category-breakdown", (event, startDate: string, endDate: string) => {
+  console.log("Getting category breakdown from", startDate, "to", endDate);
+  // Implement category breakdown retrieval logic here
 });
+ipcMain.handle("get-day-app-usage", (event, date: string) => {
+  console.log("Getting day app usage for date:", date);
+  return getAppUsage(date);
+} );
 
 
 //user functions

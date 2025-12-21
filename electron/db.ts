@@ -86,6 +86,52 @@ export function getUserProfile() {
       final_goal: "",
     });
   }
-  
+
   return db.prepare("SELECT * FROM user_profile WHERE id = 1").get();
+}
+
+export function getDaySummary(date: string) {
+  return db.prepare(`
+    SELECT category, SUM(duration_sec) AS total_sec
+    FROM activity_log
+    WHERE DATE(start_time) = ?
+    GROUP BY category
+  `).all(date);
+}
+export function getDayAppUsage(date: string) {
+  return db.prepare(`
+    SELECT app_name, SUM(duration_sec) AS total_sec
+    FROM activity_log
+    WHERE DATE(start_time) = ?
+    GROUP BY app_name
+    ORDER BY total_sec DESC
+  `).all(date);
+}
+export function getWeekSummary(startDate: string, endDate: string) {
+  return db.prepare(`
+    SELECT DATE(start_time) AS day, SUM(duration_sec) AS total_sec
+    FROM activity_log
+    WHERE DATE(start_time) BETWEEN ? AND ?
+    GROUP BY day
+    ORDER BY day
+  `).all(startDate, endDate);
+}
+export function getCategoryBreakdown(startDate: string, endDate: string) {
+  return db.prepare(`
+    SELECT category, SUM(duration_sec) AS total_sec
+    FROM activity_log
+    WHERE DATE(start_time) BETWEEN ? AND ?
+    GROUP BY category
+    ORDER BY total_sec DESC
+  `).all(startDate, endDate);
+}
+export function getMonthSummary(year: number, month: number) {
+  return db.prepare(`
+    SELECT DATE(start_time) AS day, SUM(duration_sec) AS total_sec
+    FROM activity_log
+    WHERE strftime('%Y', start_time) = ?
+      AND strftime('%m', start_time) = ?
+    GROUP BY day
+    ORDER BY day
+  `).all(String(year), String(month).padStart(2, "0"));
 }

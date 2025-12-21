@@ -1,9 +1,15 @@
 export interface IElectronAPI {
-  startTracking: () => Promise<string>;
-  stopTracking: () => Promise<string>;
-  getData: () => Promise<any[]>;
+  // fire-and-forget (send/on)
+  startTracking: () => void;
+  stopTracking: () => void;
+
+  // request-response (invoke/handle)
   getDailySummary: (date: string) => Promise<any[]>;
-  updateUserProfile: (profileData: any) => Promise<void>;
+  getWeekSummary: (startDate: string, endDate: string) => Promise<any[]>;
+  getCategoryBreakdown: (startDate: string, endDate: string) => Promise<any[]>;
+  getDayAppUsage: (date: string) => Promise<any[]>;
+
+  updateUserProfile: (profileData: any) => Promise<any>;
   getUserProfile: () => Promise<any>;
 }
 
