@@ -1,5 +1,5 @@
 import { LogEntry } from "@/types/types";
-const RAW_DAILY_LOG: LogEntry[] = [
+export const RAW_DAILY_LOG: LogEntry[] = [
   { id: 1, app: "VS Code", log: "Refactoring IPC types 1h 15m", timeStart: "09:00", timeEnd: "10:15" },
   { id: 2, app: "Chrome", log: "Next.js Static Exports Docs 45m, Twitter Scroll 15m", timeStart: "10:15", timeEnd: "11:15" },
   { id: 3, app: "YouTube", log: "Coding Tutorial 1h 0m, Songs 1h 30m", timeStart: "11:15", timeEnd: "13:45" },
