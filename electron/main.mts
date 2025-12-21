@@ -25,6 +25,7 @@ app.whenReady().then(() => {
 
 // START tracking
 ipcMain.handle("start-tracking", () => {
+  console.log("Start tracking requested");
   if (trackerProcess) return "Already running";
   const parentDir = path.resolve(__dirname, "..");
   // const parentDir = path.dirname(__dirname); //both work and gives same result

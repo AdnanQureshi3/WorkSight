@@ -1,12 +1,28 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { LayoutDashboard, Target, History, User } from "lucide-react";
 import { SideBarProps } from "../../types/types";
+
 function SideBar({ view, setView }: SideBarProps) {
-  const [name, Setname] = useState("");
-  
+  const [isTracking, setIsTracking] = useState(false);
+  const toggleTracking = () => {
+   console.log("Toggling tracking. Current state:", isTracking);
+    try{
+      if (!isTracking) {
+        window.electronAPI.startTracking();
+      } else {
+        window.electronAPI.stopTracking();
+      } 
+       setIsTracking(!isTracking);
+    }
+    catch (error) {
+        console.error("Error toggling tracking:", error);
+      } 
+  }
+ 
+
   return (
     <div className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col fixed h-full z-20">
+      {/* Header */}
       <div className="p-6 border-b border-slate-800">
         <h1 className="text-xl font-black text-blue-500 tracking-tighter italic">
           WORKSIGHT.
@@ -16,6 +32,7 @@ function SideBar({ view, setView }: SideBarProps) {
         </span>
       </div>
 
+      {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
         {[
           { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -37,12 +54,30 @@ function SideBar({ view, setView }: SideBarProps) {
         ))}
       </nav>
 
+      {/* Start / Stop Tracking */}
+      <div className="px-4 pb-4">
+        <button onClick={toggleTracking}
+  className={`w-full py-3 rounded-lg cursor-pointer font-semibold text-sm transition-all
+    ${
+      isTracking
+        ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+        : "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
+    }
+  `}
+>
+  {isTracking ? "Stop Tracking" : "Start Tracking"}
+</button>
 
-      <div className="flex justify-centre"> 
-        <User onClick={() => setView("profile")} className="w-7 h-7 mx-6 mb-4 text-slate-400" />
-          Profile
       </div>
-     
+
+      {/* Profile */}
+      <div
+        className="flex items-center px-6 py-4 text-slate-400 cursor-pointer hover:text-white"
+        onClick={() => setView("profile")}
+      >
+        <User className="w-6 h-6 mr-3" />
+        <span className="text-sm font-medium">Profile</span>
+      </div>
     </div>
   );
 }
