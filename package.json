@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-  "dev:next": "cd next && npm run dev",
-  "build:electron": "tsc -p electron",
-  "dev:electron": "npm run build:electron && electron electron/dist/main.mjs"
-},
-
+    "dev:next": "cd next && npm run dev",
+    "build:electron": "tsc -p electron",
+    "dev:electron": "npm run build:electron && electron electron/dist/main.mjs"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -21,6 +20,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "better-sqlite3": "^12.5.0"
+    "better-sqlite3": "^12.5.0",
+    "sqlite3": "^5.1.7"
   }
 }

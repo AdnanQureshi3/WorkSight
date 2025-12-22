@@ -21,7 +21,9 @@ export default function App() {
 
   // 🔹 FETCH ONCE
   useEffect(() => {
-    const today = new Date().toISOString().slice(0, 10);
+    // const today = new Date().toISOString().slice(0, 10);
+    // console.log("Fetching app usage for date:", today);
+    const today = "2025-12-23"
     window.electronAPI.getDayAppUsage(today).then(setDayAppUsage);
   }, [refresh]);
 

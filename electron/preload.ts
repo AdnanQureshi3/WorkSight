@@ -34,8 +34,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   addGoal: (goal: {
     name: string;
-    target: number;
-    unit: string;
+    targetMinutes: number;
+    thresholdPercent: number;
   }) => ipcRenderer.invoke("add-goal", goal),
 
   updateGoalProgress: (id: number, current: number) =>
