@@ -6,7 +6,9 @@ type Goal = {
   id: number;
   name: string;
   target_minutes: number;
+  current_minutes: number;
   threshold_percent: number;
+  created_at: string;
 };
 
 export default function GoalsView({
@@ -32,7 +34,6 @@ export default function GoalsView({
   async function handleAddGoal() {
     const targetMinutes = hours * 60 + minutes;
     if (!name || targetMinutes <= 0) return;
-    console.log("Adding goal:", { name, targetMinutes, threshold });
 
     await window.electronAPI.addGoal({
       name,
@@ -54,7 +55,6 @@ export default function GoalsView({
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-left-4 duration-500">
-      {/* HEADER */}
       <header className="flex items-center gap-4">
         <button
           onClick={() => setView("dashboard")}
@@ -76,37 +76,47 @@ export default function GoalsView({
         {/* ACTIVE GOALS */}
         <Card title="Active Protocols">
           {goals.length === 0 ? (
-            <div className="p-6 rounded-xl border border-slate-800 bg-slate-900/60 text-center space-y-2">
+            <div className="p-6 border border-slate-800 bg-slate-900/60 rounded-xl text-center">
               <p className="text-sm font-semibold text-slate-300">
-                No active protocols found
-              </p>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                You haven’t defined any productivity directives yet.
-                Initialize your first protocol to begin tracking execution.
+                No active protocols
               </p>
             </div>
           ) : (
             <div className="space-y-5">
               {goals.map((g) => {
-                const required =
-                  (g.target_minutes * g.threshold_percent) / 100;
+                const completion = Math.min(
+                  Math.round(
+                    (g.current_minutes / g.target_minutes) * 100
+                  ),
+                  100
+                );
+
+                const required = Math.round(
+                  (g.target_minutes * g.threshold_percent) / 100
+                );
+
+                const remaining = Math.max(
+                  required - g.current_minutes,
+                  0
+                );
 
                 return (
                   <div
                     key={g.id}
                     className="p-5 rounded-xl bg-slate-900 border border-slate-800"
                   >
-                    <div className="flex justify-between mb-2">
+                    <div className="flex justify-between">
                       <div>
-                        <p className="font-bold">{g.name}</p>
+                        <p className="font-bold text-lg">{g.name}</p>
                         <p className="text-xs text-slate-500 font-mono">
-                          Target: {g.target_minutes} min · Threshold:{" "}
+                          {completion}% completed · Threshold{" "}
                           {g.threshold_percent}%
                         </p>
-                        <p className="text-[10px] text-slate-400">
-                          Required: {Math.round(required)} min
+                        <p className="text-[11px] text-slate-400">
+                          {remaining === 0
+                            ? "Threshold reached"
+                            : `${remaining} min to go`}
                         </p>
-                        <p>g.current_minutes</p>
                       </div>
 
                       <button
@@ -115,6 +125,22 @@ export default function GoalsView({
                       >
                         <Trash2 size={16} />
                       </button>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div className="relative mt-4">
+                      <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500 transition-all"
+                          style={{ width: `${completion}%` }}
+                        />
+                      </div>
+
+                      {/* Threshold marker */}
+                      <div
+                        className="absolute top-[-4px] h-4 w-0.5 bg-yellow-400"
+                        style={{ left: `${g.threshold_percent}%` }}
+                      />
                     </div>
                   </div>
                 );
@@ -129,37 +155,32 @@ export default function GoalsView({
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full bg-slate-900 border p-3 rounded-lg"
+              className="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg"
               placeholder="e.g. LeetCode Practice"
             />
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-2 bg-slate-900 border p-3 rounded-lg">
-                <span className="text-slate-400 text-sm">Hours</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={23}
-                  value={hours}
-                  onChange={(e) => setHours(Number(e.target.value))}
-                  className="flex-1 bg-transparent outline-none text-right"
-                />
-              </div>
+              <input
+                type="number"
+                min={0}
+                value={hours}
+                onChange={(e) => setHours(Number(e.target.value))}
+                className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-center text-lg font-mono focus:border-blue-500 outline-none"
+                placeholder="Hours"
+              />
 
-              <div className="flex items-center gap-2 bg-slate-900 border p-3 rounded-lg">
-                <span className="text-slate-400 text-sm">Minutes</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={59}
-                  value={minutes}
-                  onChange={(e) => setMinutes(Number(e.target.value))}
-                  className="flex-1 bg-transparent outline-none text-right"
-                />
-              </div>
+              <input
+                type="number"
+                min={0}
+                max={59}
+                value={minutes}
+                onChange={(e) => setMinutes(Number(e.target.value))}
+                className="bg-slate-900 border border-slate-700 rounded-lg p-3 text-center text-lg font-mono focus:border-blue-500 outline-none"
+                placeholder="Minutes"
+              />
             </div>
 
-            <div className="space-y-2">
+            <div>
               <label className="text-[10px] font-bold text-slate-500 uppercase">
                 Threshold ({threshold}%)
               </label>

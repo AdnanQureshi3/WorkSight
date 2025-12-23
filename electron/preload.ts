@@ -43,4 +43,8 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   deleteGoal: (id: number) =>
     ipcRenderer.invoke("delete-goal", id),
+
+   getWeeklyHistory: () => ipcRenderer.invoke("getWeeklyHistory"),
+   getWeeklyStats: () => ipcRenderer.invoke("getWeeklyStats"),
 });
+

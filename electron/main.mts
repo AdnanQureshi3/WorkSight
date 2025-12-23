@@ -3,7 +3,9 @@ import path from "path";
 import { spawn } from "child_process";
 import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
-import { getDailyCategorySummary, getAppUsage, getYouTubeBreakdown, updateUserProfile, getUserProfile, getGoals, addGoal,  deleteGoal } from "./db.js"; 
+import { getDailyCategorySummary, getAppUsage, getYouTubeBreakdown,
+   updateUserProfile, getUserProfile, getGoals, addGoal,  deleteGoal,
+   getWeeklyHistory, getWeeklyStats } from "./db.js"; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -103,4 +105,12 @@ ipcMain.handle("add-goal", (_, goal) => {
 
 ipcMain.handle("delete-goal", (_, id) => {
   return deleteGoal(id);
+});
+
+
+ipcMain.handle("getWeeklyHistory", () => {
+  return getWeeklyHistory();
+});
+ipcMain.handle("getWeeklyStats", () => {
+  return getWeeklyStats();
 });

@@ -6,22 +6,27 @@ export const db = new Database(dbPath);
 
 export function getDailyCategorySummary(date: string) {
   console.log("Fetching daily category summary for date:", date);
-  return db.prepare(`
+  const res =  db.prepare(`
     SELECT category, SUM(duration_sec) as total_sec
     FROM activity_log
     WHERE DATE(start_time) = ?
     GROUP BY category
   `).all(date);
+  console.log("Daily category summary result:", res);
+  return res;
+
 }
 
 export function getAppUsage(date: string) {
-  return db.prepare(`
+  const res = db.prepare(`  
     SELECT app_name, SUM(duration_sec) as total_sec
     FROM activity_log
     WHERE DATE(start_time) = ?
     GROUP BY app_name
     ORDER BY total_sec DESC
   `).all(date);
+  console.log("App usage result:", res);
+  return res;
 }
 
 export function getYouTubeBreakdown(date: string) {
@@ -172,15 +177,15 @@ export function getMonthSummary(year: number, month: number) {
 
 // ---------- GOALS ----------
 
-// db.prepare("DROP TABLE IF EXISTS goals").run();
 export function ensureGoalsTable() {
+  // db.prepare("DROP TABLE IF EXISTS goals").run();
   db.prepare(`
     CREATE TABLE IF NOT EXISTS goals (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       target_minutes INTEGER NOT NULL,
       threshold_percent INTEGER NOT NULL,
-      current_minutes INTEGER DEFAULT 0,
+      current_minutes INTEGER DEFAULT 40,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
@@ -223,4 +228,71 @@ export function deleteGoal(id: number) {
   return db
     .prepare(`DELETE FROM goals WHERE id = ?`)
     .run(id);
+}
+
+// TABLE USED (STRICTLY):
+// activity_log(
+//   id INTEGER,
+//   app_name TEXT,
+//   window_title TEXT,
+//   domain TEXT,
+//   start_time TEXT,
+//   end_time TEXT,
+//   duration_sec INTEGER,
+//   category TEXT
+// )
+
+export function getWeeklyHistory() {
+  
+  const result = db.prepare(`
+    SELECT
+      DATE(start_time) AS date,
+      SUM(CASE WHEN category = 'neutral' THEN duration_sec ELSE 0 END) / 3600.0 AS neutral,
+      SUM(CASE WHEN category = 'work' THEN duration_sec ELSE 0 END) / 3600.0 AS work,
+      SUM(CASE WHEN category = 'distraction' THEN duration_sec ELSE 0 END) / 3600.0 AS distraction
+    FROM activity_log
+    WHERE DATE(start_time) >= DATE('now','-6 days')
+    GROUP BY DATE(start_time)
+    ORDER BY DATE(start_time)
+  `).all()
+  console.log("Weekly History Result:", result);
+  return result.map((r: any) => ({
+    day: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][new Date(r.date).getDay()],
+    work: +(r.work || 0).toFixed(1),
+    distraction: +(r.distraction || 0).toFixed(1),
+    neutral: +(r.neutral || 0).toFixed(1),
+    date: r.date,
+  }));
+
+}
+
+export function getWeeklyStats() {
+  const avgDailyTotal = db.prepare(`
+    SELECT AVG(day_total) AS avg
+    FROM (
+      SELECT SUM(duration_sec) / 3600.0 AS day_total
+      FROM activity_log
+      WHERE DATE(start_time) >= DATE('now','-6 days')
+      GROUP BY DATE(start_time)
+    )
+  `).get()?.avg ?? 0;
+
+  const peak = db.prepare(`
+    SELECT
+      app_name,
+      SUM(duration_sec) / 3600.0 AS hrs
+    FROM activity_log
+    WHERE
+      category = 'distraction'
+      AND DATE(start_time) >= DATE('now','-6 days')
+    GROUP BY app_name
+    ORDER BY hrs DESC
+    LIMIT 1
+  `).get();
+
+  return {
+    avgDailyHours: +avgDailyTotal.toFixed(1),
+    peakApp: peak?.app_name ?? "None",
+    peakHours: peak ? +peak.hrs.toFixed(1) : 0,
+  };
 }
