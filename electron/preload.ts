@@ -27,6 +27,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   stopTracking: () =>
     ipcRenderer.send("stop-tracking"),
+  
+  getData:()=>
+    ipcRenderer.invoke("get-data"),
 
 
   // -------- GOALS --------

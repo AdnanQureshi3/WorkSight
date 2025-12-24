@@ -18,31 +18,6 @@ def get_active_app():
     except:
         return "Unknown", "Unknown"
 
-def extract_domain(title):
-    if not title:
-        return None
-    title = title.lower()
-    if "youtube" in title:
-        return "youtube.com"
-    if "instagram" in title:
-        return "instagram.com"
-    if "leetcode" in title:
-        return "leetcode.com"
-    return None
-
-def extract_app_name_from_title(title, app_name):
-    if not title:
-        return app_name
-
-    t = title.lower()
-    if "youtube" in t:
-        return "YouTube"
-    if "instagram" in t:
-        return "Instagram"
-    if "leetcode" in t:
-        return "LeetCode"
-
-    return app_name  # fallback (Chrome, VSCode, etc.)
 
 def load_user_rules(conn):
     cur = conn.cursor()
@@ -58,35 +33,6 @@ def load_user_rules(conn):
         json.loads(row[1] or "[]"),
         json.loads(row[2] or "[]"),
     )
-
-def classify(app_name, domain, title, rules):
-    productive, distraction, neutral = rules
-    app = app_name.lower()
-    title = title.lower() if title else ""
-
-    def matches(rule_list):
-        return any(k.lower() in app or k.lower() in title for k in rule_list)
-
-    if matches(productive):
-        return "work"
-    if matches(distraction):
-        return "distraction"
-    if matches(neutral):
-        return "neutral"
-
-    if domain == "instagram.com":
-        return "distraction"
-    if domain == "leetcode.com":
-        return "work"
-
-    if domain == "youtube.com":
-        if any(k in title for k in ["tutorial", "course", "lecture", "python", "react"]):
-            return "work"
-        if any(k in title for k in ["music", "song", "podcast"]):
-            return "distraction"
-        return "neutral"
-
-    return "neutral"
 
 def main():
     conn = sqlite3.connect(DB_PATH)
@@ -110,7 +56,6 @@ def main():
     print("Loaded user rules:", rules)
 
     last_app, last_title = get_active_app()
-    last_domain = extract_domain(last_title)
     start_time = datetime.datetime.now()
 
     try:
@@ -124,27 +69,24 @@ def main():
                 duration = int((end_time - start_time).total_seconds())
 
                 if duration >= 5:
-                    logical_app = extract_app_name_from_title(last_title, last_app)
-                    category = classify(logical_app, last_domain, last_title, rules)
+                    
 
                     cur.execute("""
                         INSERT INTO activity_log
-                        (app_name, window_title, domain, start_time, end_time, duration_sec, category)
-                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                        (app_name, window_title,  start_time, end_time, duration_sec)
+                        VALUES (?, ?, ?, ?, ?)
                     """, (
-                        logical_app,
+                        last_app,
                         last_title,
-                        last_domain,
                         start_time.isoformat(),
                         end_time.isoformat(),
                         duration,
-                        category
+                    
                     ))
                     conn.commit()
 
                 last_app = app
                 last_title = title
-                last_domain = extract_domain(title)
                 start_time = end_time
 
     except KeyboardInterrupt:
@@ -152,21 +94,18 @@ def main():
         duration = int((end_time - start_time).total_seconds())
 
         if duration >= 5:
-            logical_app = extract_app_name_from_title(last_title, last_app)
-            category = classify(logical_app, last_domain, last_title, rules)
-
+            
             cur.execute("""
                 INSERT INTO activity_log
-                (app_name, window_title, domain, start_time, end_time, duration_sec, category)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (app_name, window_title,  start_time, end_time, duration_sec)
+                VALUES (?, ?, ?, ?, ?)
             """, (
-                logical_app,
+                last_app,
                 last_title,
-                last_domain,
                 start_time.isoformat(),
                 end_time.isoformat(),
                 duration,
-                category
+            
             ))
             conn.commit()
 

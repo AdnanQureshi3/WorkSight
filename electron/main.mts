@@ -5,8 +5,10 @@ import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
 import { getDailyCategorySummary, getAppUsage, getYouTubeBreakdown,
    updateUserProfile, getUserProfile, getGoals, addGoal,  deleteGoal,
-   getWeeklyHistory, getWeeklyStats } from "./db.js"; 
+   getWeeklyHistory, getWeeklyStats , getDailyGroupedUsage } from "./db.js"; 
 
+
+   import { runPythonAI } from "./pythonRunner.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -113,4 +115,17 @@ ipcMain.handle("getWeeklyHistory", () => {
 });
 ipcMain.handle("getWeeklyStats", () => {
   return getWeeklyStats();
+});
+
+
+ipcMain.handle("get-data", async () => {
+  console.log("Getting data for AI processing");
+  const today = new Date().toISOString().split('T')[0];
+  const data = getDailyGroupedUsage(today);
+
+  const aiResult = await runPythonAI(data);
+  // 3. Return to UI
+  return aiResult;
+
+
 });

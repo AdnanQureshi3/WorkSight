@@ -296,3 +296,21 @@ export function getWeeklyStats() {
     peakHours: peak ? +peak.hrs.toFixed(1) : 0,
   };
 }
+
+
+
+export function getDailyGroupedUsage(date: string) {
+  console.log("Fetching daily grouped usage for date:", date);
+  const stmt = db.prepare(`
+    SELECT
+      app_name,
+      window_title,
+      SUM(duration_sec) AS total_seconds
+    FROM activity_log
+    WHERE date(start_time) = ?
+    GROUP BY app_name, window_title
+    ORDER BY total_seconds DESC
+  `);
+
+  return stmt.all(date);
+}
