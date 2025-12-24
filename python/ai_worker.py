@@ -1,14 +1,33 @@
 import sys
 import json
 
-raw = sys.stdin.read()
-data = json.loads(raw)
+def main():
+    # Read JSON input from Electron
+    raw = sys.stdin.read()
 
-# ---- AI logic here ----
-result = {
-    "status": "ok",
-    "summary": "classified",
-    "items": data
-}
+    # Debug log (goes to stderr, NOT stdout)
+    # print("PYTHON RECEIVED:", raw, file=sys.stderr)
 
-print(json.dumps(result))
+    if not raw.strip():
+        print(json.dumps({
+            "status": "error",
+            "message": "No input received"
+        }))
+        return
+
+    data = json.loads(raw)
+
+    # ---- AI processing happens here ----
+    # For now, just return basic info
+    result = {
+        "status": "ok",
+        "total_items": len(data),
+        "data": data
+    }
+
+    # IMPORTANT: stdout must contain ONLY JSON
+    print(json.dumps(result))
+
+
+if __name__ == "__main__":
+    main()

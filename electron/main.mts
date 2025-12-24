@@ -124,6 +124,7 @@ ipcMain.handle("get-data", async () => {
   const data = getDailyGroupedUsage(today);
 
   const aiResult = await runPythonAI(data);
+  console.log("AI Result:", aiResult);
   // 3. Return to UI
   return aiResult;
 
