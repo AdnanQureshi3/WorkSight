@@ -1,23 +1,28 @@
 export interface IElectronAPI {
-  // fire-and-forget (send/on)
+  // Tracker Control
   startTracking: () => void;
   stopTracking: () => void;
 
-  // request-response (invoke/handle)
-  getDailySummary: (date: string) => Promise<any[]>;
+  // Analytics
+  getDayAppUsage: (date: string) => Promise<any>;
   getWeekSummary: (startDate: string, endDate: string) => Promise<any[]>;
-  getCategoryBreakdown: (startDate: string, endDate: string) => Promise<any[]>;
-  getDayAppUsage: (date: string) => Promise<any[]>;
-
+  getMonthSummary: (year: number, month: number) => Promise<any[]>;
+  getWeeklyHistory: () => Promise<any[]>;
+  
+  // User Profile
   updateUserProfile: (profileData: any) => Promise<any>;
   getUserProfile: () => Promise<any>;
+
+  // Goals
   getGoals: () => Promise<any[]>;
-  addGoal: (goal: { name: string; target_minutes: number; threshold_percent: number }) => Promise<any>;
-  updateGoalProgress: (id: number, current: number) => Promise<any>;
+  addGoal: (goal: { 
+    name: string; 
+    target_minutes: number; 
+    threshold_percent: number 
+  }) => Promise<any>;
   deleteGoal: (id: number) => Promise<any>;
 
-  getWeeklyHistory: () => Promise<any[]>;
-  getWeeklyStats: () => Promise<any>;
+  // AI Processing
   getData: () => Promise<any>;
 }
 

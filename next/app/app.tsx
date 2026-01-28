@@ -23,8 +23,21 @@ export default function App() {
   useEffect(() => {
     // const today = new Date().toISOString().slice(0, 10);
     // console.log("Fetching app usage for date:", today);
-    const today = "2025-12-23"
-    window.electronAPI.getDayAppUsage(today).then(setDayAppUsage);
+    const today = new Date().toISOString().slice(0, 10);
+
+window.electronAPI.getDayAppUsage(today).then(res => {
+  type WindowEntry = { time: number };
+
+const arr = Object.entries(res).map(([app_name, value]) => ({
+  app_name,
+  total_time: value.total_time,
+  windows: value.window.sort((a: any, b: any) => b.time - a.time)
+})).sort((a, b) => b.total_time - a.total_time); 
+
+  
+  setDayAppUsage(arr);
+});
+console.log("App usage data for the day:", dayAppUsage);
   }, [refresh]);
 
   return (

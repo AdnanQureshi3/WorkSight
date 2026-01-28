@@ -1,5 +1,5 @@
 import React from "react";
-import { Card } from "./Card";
+import  Card  from "./Card";
 import { ArrowLeft } from "lucide-react";
 
 type DetailViewProps = {
@@ -27,7 +27,7 @@ export default function DetailView({ data, setView }: DetailViewProps) {
       </header>
 
       {/* CONTENT */}
-      <Card title="AI-Classified Sequential Logic">
+      <div >
         <div className="space-y-5">
           {data.map((log, i) => {
             const isWork = log.app_name.toLowerCase().includes("code");
@@ -84,7 +84,7 @@ export default function DetailView({ data, setView }: DetailViewProps) {
             );
           })}
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

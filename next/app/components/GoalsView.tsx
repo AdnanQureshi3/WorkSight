@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card } from "./Card";
+import  Card  from "./Card";
 import { ArrowLeft, Trash2, Target } from "lucide-react";
 
 type Goal = {
@@ -74,7 +74,7 @@ export default function GoalsView({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* ACTIVE GOALS */}
-        <Card title="Active Protocols">
+        <div >
           {goals.length === 0 ? (
             <div className="p-6 border border-slate-800 bg-slate-900/60 rounded-xl text-center">
               <p className="text-sm font-semibold text-slate-300">
@@ -147,10 +147,9 @@ export default function GoalsView({
               })}
             </div>
           )}
-        </Card>
+        </div>
 
         {/* NEW GOAL */}
-        <Card title="Initialize New Protocol">
           <div className="space-y-6">
             <input
               value={name}
@@ -202,7 +201,6 @@ export default function GoalsView({
               INITIALIZE TARGET
             </button>
           </div>
-        </Card>
       </div>
     </div>
   );

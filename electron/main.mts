@@ -1,14 +1,21 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { spawn } from "child_process";
-import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
-import { getDailyCategorySummary, getAppUsage, getYouTubeBreakdown,
-   updateUserProfile, getUserProfile, getGoals, addGoal,  deleteGoal,
-   getWeeklyHistory, getWeeklyStats , getDailyGroupedUsage } from "./db.js"; 
+import { 
+  getAppUsage, 
+  updateUserProfile, 
+  getUserProfile, 
+  getGoals, 
+  addGoal, 
+  deleteGoal,
+  getWeeklyHistory, 
 
+  getWeekSummary,
+  getMonthSummary
+} from "./db.js"; 
+import { runPythonAI } from "./pythonRunner.js";
 
-   import { runPythonAI } from "./pythonRunner.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -27,106 +34,62 @@ app.whenReady().then(() => {
   win.loadURL("http://localhost:3000");
 });
 
-// START tracking
+/* ---------- TRACKER CONTROL ---------- */
+
 ipcMain.on("start-tracking", () => {
-  console.log("Start tracking requested");
-  if (trackerProcess) return "Already running";
+  if (trackerProcess) return;
+  
   const parentDir = path.resolve(__dirname, "..");
-  // const parentDir = path.dirname(__dirname); //both work and gives same result
-
-  const pythonPath = path.join(
-    parentDir,
-    "../python/venv/Scripts/python.exe"
-  );
-
+  const pythonPath = path.join(parentDir, "../python/venv/Scripts/python.exe");
   const scriptPath = path.join(parentDir, "../python/tracker.py");
-  console.log("python Path:", pythonPath);
-  console.log("Starting tracker with script:", scriptPath);
 
-  trackerProcess = spawn(pythonPath, [scriptPath], {
-  windowsHide: true
+  trackerProcess = spawn(pythonPath, [scriptPath], { windowsHide: true });
+
+  trackerProcess.on("error", (err: Error) => console.error("Spawn error:", err));
 });
 
-trackerProcess.on("error", (err:Error) => {
-  console.error("Spawn error:", err);
-});
-
-  return "Tracking started";
-});
-
-// STOP tracking
 ipcMain.on("stop-tracking", () => {
-  if (!trackerProcess) return "Not running";
+  if (!trackerProcess) return;
   trackerProcess.kill();
   trackerProcess = null;
-  return "Tracking stopped";
 });
 
+/* ---------- ANALYTICS HANDLERS ---------- */
 
-ipcMain.handle("get-day-summary", (event, date: string) => {
-  console.log("Getting day summary for date:", date);
-  return getDailyCategorySummary(date);
-});
-ipcMain.handle("get-week-summary", (event, startDate: string, endDate: string) => {
-  console.log("Getting week summary from", startDate, "to", endDate);
-  // Implement week summary retrieval logic here
-});
-ipcMain.handle("get-category-breakdown", (event, startDate: string, endDate: string) => {
-  console.log("Getting category breakdown from", startDate, "to", endDate);
-  // Implement category breakdown retrieval logic here
-});
-ipcMain.handle("get-day-app-usage", (event, date: string) => {
-  console.log("Getting day app usage for date:", date);
-  return getAppUsage(date);
-} );
+ipcMain.handle("get-day-app-usage", (_, date: string) => getAppUsage(date));
+
+ipcMain.handle("get-week-summary", (_, startDate: string, endDate: string) => 
+  getWeekSummary(startDate, endDate)
+);
+
+ipcMain.handle("get-month-summary", (_, year: number, month: number) => 
+  getMonthSummary(year, month)
+);
+
+ipcMain.handle("getWeeklyHistory", () => getWeeklyHistory());
 
 
-//user functions
-ipcMain.handle("update-user-profile", (event, profileData: any) => { 
-  console.log("Updating user profile with data:", profileData);  
-  updateUserProfile(profileData);
-});
-ipcMain.handle("get-user-profile", (event) => { 
-  console.log("Getting user profile");
-  return getUserProfile();
-});
+/* ---------- USER PROFILE ---------- */
 
+ipcMain.handle("update-user-profile", (_, profileData: any) => updateUserProfile(profileData));
 
-//Goal func
-ipcMain.handle("get-goals", () => {
-  return getGoals();
-});
+ipcMain.handle("get-user-profile", () => getUserProfile());
 
-ipcMain.handle("add-goal", (_, goal) => {
-  return addGoal(goal);
-});
+/* ---------- GOALS ---------- */
 
-// ipcMain.handle("update-goal-progress", (_, id, current) => {
-//   return updateGoalProgress(id, current);
-// });
+ipcMain.handle("get-goals", () => getGoals());
 
-ipcMain.handle("delete-goal", (_, id) => {
-  return deleteGoal(id);
-});
+ipcMain.handle("add-goal", (_, goal) => addGoal(goal));
 
+ipcMain.handle("delete-goal", (_, id: number) => deleteGoal(id));
 
-ipcMain.handle("getWeeklyHistory", () => {
-  return getWeeklyHistory();
-});
-ipcMain.handle("getWeeklyStats", () => {
-  return getWeeklyStats();
-});
-
+/* ---------- AI PROCESSING ---------- */
 
 ipcMain.handle("get-data", async () => {
-  console.log("Getting data for AI processing");
   const today = new Date().toISOString().split('T')[0];
-  const data = getDailyGroupedUsage(today);
-
+  // Using getAppUsage as the clean source for AI data
+  const data = getAppUsage(today);
+  
   const aiResult = await runPythonAI(data);
-  console.log("AI Result:", aiResult);
-  // 3. Return to UI
   return aiResult;
-
-
 });

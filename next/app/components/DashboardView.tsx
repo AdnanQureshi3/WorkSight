@@ -1,4 +1,4 @@
-import { Card } from "./Card";
+import  Card  from "./Card";
 import { useState, useMemo } from "react";
 import {
   Lightbulb,
@@ -25,32 +25,16 @@ export default function DashboardView({ data, setView }: DashboardViewProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   /* -------- DERIVED METRICS -------- */
-  const stats = useMemo(() => {
-    let work = 0;
-    let distraction = 0;
-
-    data.forEach((d) => {
-      const mins = d.total_sec / 60;
-      d.app_name.toLowerCase().includes("code")
-        ? (work += mins)
-        : (distraction += mins);
-    });
-
-    return {
-      work: Math.round(work),
-      distraction: Math.round(distraction),
-      total: Math.round(work + distraction),
-    };
-  }, [data]);
+ 
 
   /* -------- ACTIVITY LIST -------- */
-  const parsedActivities = useMemo(() => {
-    return data.map((item) => ({
-      app: item.app_name,
-      duration: `${Math.round(item.total_sec / 60)} min`,
-      isWork: item.app_name.toLowerCase().includes("code"),
-    }));
-  }, [data]);
+  // const parsedActivities = useMemo(() => {
+  //   console.log("Parsing activities:", data);
+  //   return data.map((item) => ({
+  //     app: item.app_name,
+  //     duration: `${Math.round(item.total_time / 60)} min`,
+  //   }));
+  // }, [data]);
 
   /* -------- AI ANALYSIS -------- */
   const performAIAnalysis = async () => {
@@ -80,39 +64,15 @@ export default function DashboardView({ data, setView }: DashboardViewProps) {
 
       {/* KPI ROW */}
       <div className="grid grid-cols-3 gap-4">
-        <Card>
-          <div className="flex items-center gap-3">
-            <Clock className="text-blue-400" />
-            <div>
-              <p className="text-xs text-slate-400">Total Time</p>
-              <p className="text-xl font-bold">{stats.total} min</p>
-            </div>
-          </div>
-        </Card>
+     
 
-        <Card>
-          <div className="flex items-center gap-3">
-            <CheckCircle2 className="text-emerald-400" />
-            <div>
-              <p className="text-xs text-slate-400">Work</p>
-              <p className="text-xl font-bold">{stats.work} min</p>
-            </div>
-          </div>
-        </Card>
+        
 
-        <Card>
-          <div className="flex items-center gap-3">
-            <XCircle className="text-rose-400" />
-            <div>
-              <p className="text-xs text-slate-400">Distraction</p>
-              <p className="text-xl font-bold">{stats.distraction} min</p>
-            </div>
-          </div>
-        </Card>
+       
       </div>
 
       {/* AI INSIGHT */}
-      <Card>
+      <div>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <Brain className="text-blue-400" />
@@ -148,30 +108,21 @@ export default function DashboardView({ data, setView }: DashboardViewProps) {
             </p>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* ACTIVITY LIST */}
-      <Card title="Application Breakdown">
+      <div >
         <div className="space-y-2">
-          {parsedActivities.map((act, i) => (
+          {data.map((act, i) => (
             <div
               key={i}
               className="flex items-center justify-between p-3 rounded-lg bg-slate-900/60 hover:bg-slate-900 transition"
             >
               <div>
-                <p className="font-semibold">{act.app}</p>
-                <p className="text-xs text-slate-500">{act.duration}</p>
+                <Card appdata={act}/>
               </div>
 
-              <span
-                className={`text-xs font-bold px-2 py-1 rounded ${
-                  act.isWork
-                    ? "bg-emerald-500/10 text-emerald-400"
-                    : "bg-rose-500/10 text-rose-400"
-                }`}
-              >
-                {act.isWork ? "WORK" : "DISTRACTION"}
-              </span>
+             
             </div>
           ))}
         </div>
@@ -182,7 +133,7 @@ export default function DashboardView({ data, setView }: DashboardViewProps) {
         >
           VIEW FULL TIMELINE <ChevronRight size={14} />
         </button>
-      </Card>
+      </div>
     </div>
   );
 }

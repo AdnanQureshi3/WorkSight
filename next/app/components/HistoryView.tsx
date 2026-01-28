@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { Card } from "./Card";
+import  Card  from "./Card";
 
 type DayData = {
   day: string;
@@ -76,16 +76,16 @@ function HistoryView({
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* LEFT STATS */}
         <div className="space-y-4">
-          <Card className="text-center">
+          <div className="text-center">
             <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">
               Avg Daily Usage
             </p>
             <p className="text-4xl font-black text-emerald-500">
               {stats ? `${stats.avgDailyHours}h` : "--"}
             </p>
-          </Card>
+          </div>
 
-          <Card className="text-center">
+          <div className="text-center">
             <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">
               Peak Distraction
             </p>
@@ -101,11 +101,11 @@ function HistoryView({
             ) : (
               <p className="text-xs text-slate-500">No data</p>
             )}
-          </Card>
+          </div>
         </div>
 
         {/* CHART */}
-        <Card className="lg:col-span-3" title="Weekly Usage Breakdown">
+        <div className="lg:col-span-3" title="Weekly Usage Breakdown">
           {weeklyData.length === 0 ? (
             <div className="h-80 flex items-center justify-center text-xs text-slate-500">
               No historical data available
@@ -167,7 +167,7 @@ function HistoryView({
               </div>
             </>
           )}
-        </Card>
+        </div>
       </div>
     </div>
   );
