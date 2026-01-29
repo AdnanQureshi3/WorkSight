@@ -40,7 +40,7 @@ export default function App() {
           <DetailView data={dayAppUsage} setView={setView} />
         )}
 
-        {view === "goals" && <GoalsView setView={setView} />}
+     
         {view === "history" && <HistoryView setView={setView} />}
         {view === "profile" && <Profile setView={setView} />}
       </main>

@@ -8,8 +8,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getWeekSummary: (startDate: string, endDate: string) =>
     ipcRenderer.invoke("get-week-summary", startDate, endDate),
 
-  getCategoryBreakdown: (startDate: string, endDate: string) =>
-    ipcRenderer.invoke("get-category-breakdown", startDate, endDate),
 
   getDayAppUsage: (date: string) =>
     ipcRenderer.invoke("get-day-app-usage", date),
@@ -33,19 +31,9 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
 
   // -------- GOALS --------
-  getGoals: () => ipcRenderer.invoke("get-goals"),
 
-  addGoal: (goal: {
-    name: string;
-    targetMinutes: number;
-    thresholdPercent: number;
-  }) => ipcRenderer.invoke("add-goal", goal),
-
-  updateGoalProgress: (id: number, current: number) =>
-    ipcRenderer.invoke("update-goal-progress", id, current),
-
-  deleteGoal: (id: number) =>
-    ipcRenderer.invoke("delete-goal", id),
+  
+ 
 
    getWeeklyHistory: () => ipcRenderer.invoke("getWeeklyHistory"),
    getWeeklyStats: () => ipcRenderer.invoke("getWeeklyStats"),

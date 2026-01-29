@@ -11,10 +11,7 @@ export interface IElectronAPI {
 
   updateUserProfile: (profileData: any) => Promise<any>;
   getUserProfile: () => Promise<any>;
-  getGoals: () => Promise<any[]>;
-  addGoal: (goal: { name: string; target_minutes: number; threshold_percent: number }) => Promise<any>;
-  updateGoalProgress: (id: number, current: number) => Promise<any>;
-  deleteGoal: (id: number) => Promise<any>;
+ 
 
   getWeeklyHistory: () => Promise<any[]>;
   getWeeklyStats: () => Promise<any>;

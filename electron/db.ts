@@ -175,61 +175,6 @@ export function getMonthSummary(year: number, month: number) {
 }
 
 
-// ---------- GOALS ----------
-
-export function ensureGoalsTable() {
-  // db.prepare("DROP TABLE IF EXISTS goals").run();
-  db.prepare(`
-    CREATE TABLE IF NOT EXISTS goals (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      target_minutes INTEGER NOT NULL,
-      threshold_percent INTEGER NOT NULL,
-      current_minutes INTEGER DEFAULT 40,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-  `).run();
-}
-
-export function getGoals() {
-  ensureGoalsTable();
-
-  return db
-    .prepare(`SELECT * FROM goals ORDER BY created_at DESC`)
-    .all();
-}
-
-export function addGoal(goal: {
-  name: string;
-  target_minutes: number;
-  threshold_percent: number;
-}) {
-  ensureGoalsTable();
-  console.log("Adding goal to DB:", goal);
-  return db.prepare(`
-    INSERT INTO goals (name, target_minutes, threshold_percent)
-    VALUES (?, ?, ?)
-  `).run(
-    goal.name,
-    goal.target_minutes,
-    goal.threshold_percent
-  );
-}
-
-export function updateGoalProgress(id: number, current_minutes: number) {
-  return db.prepare(`
-    UPDATE goals
-    SET current_minutes = ?
-    WHERE id = ?
-  `).run(current_minutes, id);
-}
-
-export function deleteGoal(id: number) {
-  return db
-    .prepare(`DELETE FROM goals WHERE id = ?`)
-    .run(id);
-}
-
 // TABLE USED (STRICTLY):
 // activity_log(
 //   id INTEGER,

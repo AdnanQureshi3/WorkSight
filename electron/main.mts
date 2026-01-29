@@ -4,7 +4,7 @@ import { spawn } from "child_process";
 import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
 import { getDailyCategorySummary, getAppUsage, getYouTubeBreakdown,
-   updateUserProfile, getUserProfile, getGoals, addGoal,  deleteGoal,
+   updateUserProfile, getUserProfile, 
    getWeeklyHistory, getWeeklyStats , getDailyGroupedUsage } from "./db.js"; 
 
 
@@ -92,22 +92,7 @@ ipcMain.handle("get-user-profile", (event) => {
 });
 
 
-//Goal func
-ipcMain.handle("get-goals", () => {
-  return getGoals();
-});
 
-ipcMain.handle("add-goal", (_, goal) => {
-  return addGoal(goal);
-});
-
-// ipcMain.handle("update-goal-progress", (_, id, current) => {
-//   return updateGoalProgress(id, current);
-// });
-
-ipcMain.handle("delete-goal", (_, id) => {
-  return deleteGoal(id);
-});
 
 
 ipcMain.handle("getWeeklyHistory", () => {

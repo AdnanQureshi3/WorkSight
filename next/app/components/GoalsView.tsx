@@ -22,36 +22,8 @@ export default function GoalsView({
   const [minutes, setMinutes] = useState(0);
   const [threshold, setThreshold] = useState(80);
 
-  useEffect(() => {
-    loadGoals();
-  }, []);
 
-  async function loadGoals() {
-    const data = await window.electronAPI.getGoals();
-    setGoals(data);
-  }
 
-  async function handleAddGoal() {
-    const targetMinutes = hours * 60 + minutes;
-    if (!name || targetMinutes <= 0) return;
-
-    await window.electronAPI.addGoal({
-      name,
-      target_minutes: targetMinutes,
-      threshold_percent: threshold,
-    });
-
-    setName("");
-    setHours(0);
-    setMinutes(0);
-    setThreshold(80);
-    loadGoals();
-  }
-
-  async function handleDeleteGoal(id: number) {
-    await window.electronAPI.deleteGoal(id);
-    loadGoals();
-  }
 
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-left-4 duration-500">
@@ -120,7 +92,7 @@ export default function GoalsView({
                       </div>
 
                       <button
-                        onClick={() => handleDeleteGoal(g.id)}
+                       
                         className="text-rose-500"
                       >
                         <Trash2 size={16} />
@@ -138,7 +110,7 @@ export default function GoalsView({
 
                       {/* Threshold marker */}
                       <div
-                        className="absolute top-[-4px] h-4 w-0.5 bg-yellow-400"
+                        className="absolute  h-4 w-0.5 bg-yellow-400"
                         style={{ left: `${g.threshold_percent}%` }}
                       />
                     </div>
@@ -195,7 +167,7 @@ export default function GoalsView({
             </div>
 
             <button
-              onClick={handleAddGoal}
+     
               className="w-full flex items-center justify-center gap-2 bg-blue-600 py-3 rounded-xl font-bold"
             >
               <Target size={16} />
