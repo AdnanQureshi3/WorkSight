@@ -67,12 +67,6 @@ export default function AIQuery() {
             </pre>
           </div>
 
-          <div>
-            <strong>Rows (sample):</strong>
-            <pre className="text-xs bg-slate-900 p-2 rounded mt-1 overflow-auto">
-              {JSON.stringify(result.rows?.slice(0, 20) || [], null, 2)}
-            </pre>
-          </div>
         </div>
       )}
     </div>

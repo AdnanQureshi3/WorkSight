@@ -115,7 +115,7 @@ ipcMain.handle("get-data", async () => {
 
 });
 
-// -------- AI NATURAL-LANGUAGE → SQL → ANALYZE PIPELINE --------
+// AI NATURAL-LANGUAGE → SQL → ANALYZE PIPELINE 
 ipcMain.handle("ai-query", async (event, prompt: string) => {
   console.log("AI Query requested:", prompt);
 
@@ -153,5 +153,5 @@ ipcMain.handle("ai-query", async (event, prompt: string) => {
   }
 
   // 4) Return to the UI
-  return { status: "ok", sql, rows, analysis };
+  return { status: "ok", sql,  analysis };
 });

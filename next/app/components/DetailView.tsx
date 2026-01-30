@@ -4,85 +4,61 @@ import { ArrowLeft } from "lucide-react";
 
 type DetailViewProps = {
   data: any[];
-  setView: (view: "dashboard" | "history" | "detail" | "profile") => void;
+  setView: (view: "dashboard" | "ai" | "history" | "detail" | "profile") => void;
 };
 
 export default function DetailView({ data, setView }: DetailViewProps) {
+  const maxSec = Math.max(...data.map(d => d.total_sec));
+
   return (
-    <div className="space-y-10 animate-in zoom-in-95 duration-500">
-      {/* HEADER */}
+    <div className="space-y-12 animate-in zoom-in-95 duration-500">
       <header className="flex items-center gap-4">
         <button
           onClick={() => setView("dashboard")}
-          className="p-2 hover:bg-slate-800 rounded-full transition-colors"
+          className="p-2 rounded-full hover:bg-slate-800 transition"
         >
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h2 className="text-3xl font-bold">
-            Temporal <span className="text-blue-500">Breakdown</span>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Temporal Breakdown
           </h2>
-          <p className="text-xs text-slate-500 mt-1">Today</p>
+          <p className="text-xs text-slate-500 mt-1">Activity · Today</p>
         </div>
       </header>
 
-      {/* CONTENT */}
-      <Card title="AI-Classified Sequential Logic">
-        <div className="space-y-5">
-          {data.map((log, i) => {
-            const isWork = log.app_name.toLowerCase().includes("code");
-
-            return (
-              <div
-                key={i}
-                className="p-5 rounded-xl  from-slate-900/80 to-slate-900 border border-slate-800 hover:border-slate-600 transition-colors"
-              >
-                {/* APP HEADER */}
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <p className="text-xl font-black tracking-tight text-white">
-                      {log.app_name}
-                    </p>
-                    <p className="text-xs text-slate-500 italic">
-                      Context: Active Window
-                    </p>
-                  </div>
-
-                  <span
-                    className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${
-                      isWork
-                        ? "bg-emerald-500/15 text-emerald-400"
-                        : "bg-rose-500/15 text-rose-400"
-                    }`}
-                  >
-                    {isWork ? "Productive" : "Distraction"}
-                  </span>
+      <Card title="Application Usage">
+        <div className="space-y-6">
+          {data.map((log, i) => (
+            <div
+              key={i}
+              className="group rounded-2xl border border-slate-800 bg-slate-900/40 p-6 hover:border-slate-600 transition"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="space-y-1">
+                  <p className="text-lg font-semibold text-white">
+                    {log.app_name}
+                  </p>
+                  <p className="text-[11px] uppercase tracking-wider text-slate-500">
+                    Active Window
+                  </p>
                 </div>
 
-                {/* USAGE BAR */}
-                <div
-                  className={`p-4 rounded-lg border flex items-center justify-between ${
-                    isWork
-                      ? "bg-emerald-500/5 border-emerald-500/20"
-                      : "bg-rose-500/5 border-rose-500/20"
-                  }`}
-                >
-                  <div>
-                    <p
-                      className={`text-sm font-bold ${
-                        isWork ? "text-emerald-400" : "text-rose-400"
-                      }`}
-                    >
-                      Total Usage
-                    </p>
-                    <p className="text-xs text-slate-500 font-semibold mt-1">
-                      {Math.round(log.total_sec / 60)} minutes
-                    </p>
-                  </div>
-                </div>
+                <p className="text-sm font-mono text-slate-300">
+                  {Math.round(log.total_sec / 60)} min
+                </p>
               </div>
-            );
-          })}
+
+              <div className="relative h-2 w-full rounded-full bg-slate-800 overflow-hidden">
+                <div
+                  className="absolute inset-y-0 left-0 rounded-full bg-blue-500/70 group-hover:bg-blue-400 transition-all"
+                  style={{
+                    width: `${(log.total_sec / maxSec) * 100}%`,
+                  }}
+                />
+              </div>
+            </div>
+          ))}
         </div>
       </Card>
     </div>
