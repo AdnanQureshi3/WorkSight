@@ -1,5 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 
+console.log("preload: exposing electronAPI (includes aiQuery if present)");
+
 contextBridge.exposeInMainWorld("electronAPI", {
   // -------- READ (dashboard data) --------
   getDaySummary: (date: string) =>
@@ -29,11 +31,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getData:()=>
     ipcRenderer.invoke("get-data"),
 
+  // -------- AI QUERY (natural language → SQL → analyze) --------
+  aiQuery: (prompt: string) => ipcRenderer.invoke("ai-query", prompt),
+
+
 
   // -------- GOALS --------
-
-  
- 
 
    getWeeklyHistory: () => ipcRenderer.invoke("getWeeklyHistory"),
    getWeeklyStats: () => ipcRenderer.invoke("getWeeklyStats"),

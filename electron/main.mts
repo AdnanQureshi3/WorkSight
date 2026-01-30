@@ -5,7 +5,7 @@ import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
 import { getDailyCategorySummary, getAppUsage, getYouTubeBreakdown,
    updateUserProfile, getUserProfile, 
-   getWeeklyHistory, getWeeklyStats , getDailyGroupedUsage } from "./db.js"; 
+   getWeeklyHistory, getWeeklyStats , getDailyGroupedUsage, runSafeSQL } from "./db.js"; 
 
 
    import { runPythonAI } from "./pythonRunner.js";
@@ -113,4 +113,45 @@ ipcMain.handle("get-data", async () => {
   return aiResult;
 
 
+});
+
+// -------- AI NATURAL-LANGUAGE → SQL → ANALYZE PIPELINE --------
+ipcMain.handle("ai-query", async (event, prompt: string) => {
+  console.log("AI Query requested:", prompt);
+
+  // 1) Ask Python to generate a SQL query from the natural language prompt
+  let gen;
+  try {
+    gen = await runPythonAI({ type: "generate_sql", prompt });
+  } catch (err: any) {
+    console.error("AI generation error:", err);
+    return { status: "error", error: "AI generation failed", detail: String(err) };
+  }
+
+  if (!gen || gen.status !== "ok" || !gen.sql) {
+    return { status: "error", error: "AI failed to generate a SQL query", detail: gen };
+  }
+
+  const sql = gen.sql;
+
+  // 2) Run the SQL safely on the local DB
+  let rows;
+  try {
+    rows = runSafeSQL(sql);
+  } catch (err: any) {
+    console.error("SQL execution error:", err.message);
+    return { status: "error", error: "SQL execution failed", detail: err.message, sql };
+  }
+
+  // 3) Send results back to the AI for analysis / natural language summary
+  let analysis;
+  try {
+    analysis = await runPythonAI({ type: "analyze", prompt, sql, rows });
+  } catch (err: any) {
+    console.error("AI analysis error:", err);
+    analysis = { status: "error", error: String(err) };
+  }
+
+  // 4) Return to the UI
+  return { status: "ok", sql, rows, analysis };
 });
