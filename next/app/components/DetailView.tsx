@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 
 type DetailViewProps = {
   data: any[];
-  setView: (view: "dashboard" | "goals" | "history" | "detail" | "profile") => void;
+  setView: (view: "dashboard" | "history" | "detail" | "profile") => void;
 };
 
 export default function DetailView({ data, setView }: DetailViewProps) {

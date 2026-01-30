@@ -15,24 +15,18 @@ export type ParsedActivity = {
 
 export type DashboardViewProps = {
  
-  setView: (v: "dashboard" | "goals" | "history" | "detail" | "profile") => void;
+  setView: (v: "dashboard" | "ai" | "history" | "detail" | "profile") => void;
 };
 export type SideBarProps = {
  setRefresh: React.Dispatch<React.SetStateAction<boolean>>
 
-    view: "dashboard" | "goals" | "history" | "detail" | "profile";
-    setView: (v: "dashboard" | "goals" | "history" | "detail" | "profile") => void;
+    view: "dashboard" | "ai" | "history" | "detail" | "profile";
+    setView: (v: "dashboard" | "ai" | "history" | "detail" | "profile") => void;
 };
 
 
 export type ProfileProps = {
  
-  setView: (v: "dashboard" | "goals" | "history" | "detail" | "profile") => void;
+  setView: (v: "dashboard" | "ai" | "history" | "detail" | "profile") => void;
 };
-export interface Goal {
-  id: number;
-  name: string;
-  current: number;
-  target: number;
-  unit: string;
-}
+// Goals removed — interface retained historically for reference (no longer used).

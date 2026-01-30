@@ -12,7 +12,7 @@ import {
 
 type DashboardViewProps = {
   data: any[];
-  setView: (view: "dashboard" | "goals" | "history" | "detail" | "profile") => void;
+  setView: (view: "dashboard" | "ai" | "history" | "detail" | "profile") => void;
 };
 
 export default function DashboardView({ data, setView }: DashboardViewProps) {

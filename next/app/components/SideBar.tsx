@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { LayoutDashboard, Target, History, User } from "lucide-react";
+import { LayoutDashboard, Target, History, User,Bot } from "lucide-react";
 import { SideBarProps } from "../../types/types";
 
 function SideBar({ setRefresh, view, setView }: SideBarProps) {
@@ -36,8 +36,8 @@ function SideBar({ setRefresh, view, setView }: SideBarProps) {
       <nav className="flex-1 p-4 space-y-2">
         {[
           { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
-          { id: "goals", icon: Target, label: "Targets" },
           { id: "history", icon: History, label: "Archives" },
+          { id: "ai", icon: Bot, label: "AI Chat" },
         ].map((item) => (
           <button
             key={item.id}

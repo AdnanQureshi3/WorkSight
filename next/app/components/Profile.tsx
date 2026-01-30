@@ -2,7 +2,7 @@ import { ArrowLeft, User, Terminal, Target, Pencil, Save } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type ProfileProps = {
-  setView: (v: "dashboard" | "goals" | "history" | "detail" | "profile") => void;
+  setView: (v: "dashboard" | "history" | "detail" | "profile") => void;
 };
 
 export default function Profile({ setView }: ProfileProps) {

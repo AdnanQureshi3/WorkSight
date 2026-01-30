@@ -3,16 +3,16 @@
 import { useState, useEffect } from "react";
 
 import DashboardView from "./components/DashboardView";
-import GoalsView from "./components/GoalsView";
 import SideBar from "./components/SideBar";
 import HistoryView from "./components/HistoryView";
 import DetailView from "./components/DetailView";
 import PythonTracker from "./components/PythonTracker";
 import Profile from "./components/Profile";
+import AIQuery from "./components/AIQuery";
 
 export default function App() {
   const [view, setView] = useState<
-    "dashboard" | "goals" | "history" | "detail" | "profile"
+    "dashboard" | "ai" | "history" | "detail" | "profile"
   >("dashboard");
 
   const [dayAppUsage, setDayAppUsage] = useState<any[]>([]);
@@ -39,6 +39,7 @@ export default function App() {
         {view === "detail" && (
           <DetailView data={dayAppUsage} setView={setView} />
         )}
+        {view === "ai" && <AIQuery />}
 
      
         {view === "history" && <HistoryView setView={setView} />}

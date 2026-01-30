@@ -18,7 +18,7 @@ type WeeklyStats = {
 function HistoryView({
   setView,
 }: {
-  setView: (view: "dashboard" | "goals" | "history" | "detail") => void;
+  setView: (view: "dashboard" | "history" | "detail") => void;
 }) {
   const [weeklyData, setWeeklyData] = useState<DayData[]>([]);
   const [stats, setStats] = useState<WeeklyStats | null>(null);

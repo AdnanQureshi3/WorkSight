@@ -16,6 +16,7 @@ export interface IElectronAPI {
   getWeeklyHistory: () => Promise<any[]>;
   getWeeklyStats: () => Promise<any>;
   getData: () => Promise<any>;
+  aiQuery: (prompt: string) => Promise<any>;
 }
 
 declare global {
