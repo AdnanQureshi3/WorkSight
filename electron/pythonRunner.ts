@@ -1,8 +1,8 @@
 import { spawn } from "child_process";
 
-export function runPythonAI(payload: any[]) {
+export function runPythonAI(payload: any) {
     console.log("Running Python AI with payload:", payload);
-  return new Promise((resolve, reject) => {
+  return new Promise<any>((resolve, reject) => {
     const py = spawn("python", ["python/ai_worker.py"]);
 
     let output = "";
@@ -13,7 +13,11 @@ export function runPythonAI(payload: any[]) {
 
     py.on("close", () => {
       if (error) return reject(error);
-      resolve(JSON.parse(output));
+      try {
+        resolve(JSON.parse(output));
+      } catch (e) {
+        reject(new Error("Invalid JSON returned from python: " + output));
+      }
     });
 
     py.stdin.write(JSON.stringify(payload));
