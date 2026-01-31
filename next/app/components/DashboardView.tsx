@@ -88,56 +88,7 @@ export default function DashboardView({ data, setView }: DashboardViewProps) {
         </Card>
       </div>
 
-      {/* AI Insight Section */}
-      <div className="relative group">
-        <div className="absolute -inset-0.5  from-blue-500 to-cyan-600 rounded-xl blur opacity-10 group-hover:opacity-20 transition duration-1000"></div>
-        <Card className="relative bg-slate-900 border-slate-800 p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-500/10 rounded-lg">
-                <Brain className="text-blue-400" size={24} />
-              </div>
-              <h3 className="text-lg font-bold">AI Insight</h3>
-            </div>
-            <button
-              onClick={analyze}
-              disabled={isAnalyzing}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 px-5 py-2 rounded-full text-xs font-bold transition-all transform active:scale-95"
-            >
-              {isAnalyzing ? <Loader2 className="animate-spin" size={14} /> : <Sparkles size={14} />}
-              ANALYZE
-            </button>
-          </div>
-
-          <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="relative w-28 h-28 flex items-center justify-center">
-              <svg className="absolute w-full h-full -rotate-90">
-                <circle cx="56" cy="56" r="50" fill="transparent" stroke="currentColor" strokeWidth="6" className="text-slate-800" />
-                <circle 
-                  cx="56" cy="56" r="50" fill="transparent" stroke="currentColor" strokeWidth="6" 
-                  strokeDasharray={314}
-                  strokeDashoffset={314 - (314 * (aiAnalysis?.score || 0)) / 100}
-                  className="text-blue-500 transition-all duration-1000 ease-out" 
-                />
-              </svg>
-              {isAnalyzing ? (
-                <Loader2 className="animate-spin text-blue-500" size={32} />
-              ) : (
-                <div className="text-center">
-                  <span className="text-3xl font-black">{aiAnalysis?.score || "--"}</span>
-                  <span className="text-[10px] block font-bold text-slate-500">SCORE</span>
-                </div>
-              )}
-            </div>
-
-            <div className="flex-1">
-              <p className="text-slate-300 text-lg leading-relaxed font-medium italic">
-                "{aiAnalysis?.summary || "Click analyze to discover behavioral patterns and productivity trends."}"
-              </p>
-            </div>
-          </div>
-        </Card>
-      </div>
+    
 
       {/* Usage List */}
       <Card className="bg-slate-900 border-slate-800 p-6">

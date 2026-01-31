@@ -61,18 +61,7 @@ function SideBar({ setRefresh, view, setView }: SideBarProps) {
   >
     Refresh Data
   </button>
-  <button
-    onClick={() => {
-      window.electronAPI.getData().then((data) => {
-        console.log("AI Data:", data);
-      });
-    }}
-
-    className="w-full py-2 rounded-lg text-sm font-semibold
-               bg-slate-800 text-slate-300 m-8 hover:bg-slate-700 transition"
-  >
-    AI
-  </button>
+ 
 </div>
 
 

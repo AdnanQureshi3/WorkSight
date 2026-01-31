@@ -1,4 +1,4 @@
-import { ArrowLeft, User, Terminal, Target, Pencil, Save } from "lucide-react";
+import { ArrowLeft, User, Terminal, Target, Pencil, Save, Key } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type ProfileProps = {
@@ -13,6 +13,7 @@ export default function Profile({ setView }: ProfileProps) {
   const [agentNickname, setAgentNickname] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
   const [finalGoal, setFinalGoal] = useState("");
+  const [apiKey, setApiKey] = useState("");
 
   // app classification
   const [productiveApps, setProductiveApps] = useState<string[]>([]);
@@ -35,6 +36,8 @@ export default function Profile({ setView }: ProfileProps) {
       setProductiveApps(data.productive_apps || []);
       setDistractionApps(data.distraction_apps || []);
       setNeutralApps(data.neutral_apps || []);
+
+      setApiKey(data.api_key || "");
     });
   }, []);
 
@@ -49,6 +52,7 @@ export default function Profile({ setView }: ProfileProps) {
       productive_apps: productiveApps,
       distraction_apps: distractionApps,
       neutral_apps: neutralApps,
+      api_key: apiKey,
     });
     setIsEditing(false);
   };
@@ -144,6 +148,26 @@ export default function Profile({ setView }: ProfileProps) {
               <p>{finalGoal}</p>
             )}
           </div>
+        </div>
+
+        {/* API KEY */}
+        <div>
+          <p className="flex items-center gap-2 text-xs uppercase text-slate-400 font-bold">
+            <Key size={12} /> API Key
+          </p>
+          {isEditing ? (
+            <input
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg"
+              placeholder="Enter your API key"
+            />
+          ) : (
+            <p className="tracking-widest">
+              {apiKey ? "••••••••••••••••••" : "Not set"}
+            </p>
+          )}
         </div>
 
         {/* SYSTEM PROMPT */}

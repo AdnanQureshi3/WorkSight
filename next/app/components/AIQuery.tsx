@@ -58,7 +58,7 @@ export default function AIQuery() {
           <div className="mb-2">
             <strong>AI Analysis:</strong>
             <pre className="text-xs bg-slate-900 p-2 text-wrap rounded mt-1 overflow-auto">
-              {result.analysis.analysis}
+              {result?.analysis?.analysis}
             </pre>
           </div>
 
