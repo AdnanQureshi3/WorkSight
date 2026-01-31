@@ -1,16 +1,12 @@
 import sys, json, re
 from openai import OpenAI
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 from datetime import datetime
 import os
 # Read input
 data = sys.stdin.read()
 
-client = OpenAI(
-    api_key = os.getenv("gemini_api_key"),
-    base_url="https://generativelanguage.googleapis.com/v1beta/"
-)
 try:
     payload = json.loads(data)
 except:
@@ -23,7 +19,12 @@ if isinstance(payload, list):
 
 from datetime import datetime
 
-def make_sql(prompt):
+def make_sql(prompt, api_key=None):
+
+    client = OpenAI(
+        api_key = api_key,
+        base_url="https://generativelanguage.googleapis.com/v1beta/"
+    )
 
     date = datetime.now().strftime("%Y-%m-%d %H:%M:%S %A")
 
@@ -84,6 +85,10 @@ Generate an SQL query for this request:
 
 
 def analyze(rows, goal, prompt):
+    client = OpenAI(
+        api_key = goal.get("apiKey"),
+        base_url="https://generativelanguage.googleapis.com/v1beta/"
+    )
     system_prompt = """
     You are an expert data analyst. Given tabular data, provide insights, trends, and summaries in natural language.
     Always relate insights to the user's goal if provided.
@@ -93,15 +98,18 @@ def analyze(rows, goal, prompt):
     user_prompt = f"""
 Given the following data rows:
 {json.dumps(rows)}
-User's goal: {goal}
+User's goal: {goal.get("final_goal", "N/A")}
 User's Prompt:{prompt}
 Provide a natural language analysis of the data.
 Provide a suggestions how can user improve based on his goal.
 Tell where is waste of time and how to reduce it.
 Please give response in English or Hinglish.(based on users prompt)
 
+unit of time is seconds.
+but output like 1 hr 30 min 
 
-Imp: output as a simple text
+
+Imp: output as a simple text, dont use * , ' or ", or underline
 example- ChatGPT for SQL Generation Tips,
 not like this: **`ChatGPT` for 'SQL Generation Tips'**,
 
@@ -119,11 +127,12 @@ not like this: **`ChatGPT` for 'SQL Generation Tips'**,
 
 
 if payload["type"] == "generate_sql":
-    sql = make_sql(payload.get("prompt", ""))
+    
+    sql = make_sql(payload.get("prompt", "") , payload.get("goal", {}).get("apiKey"))
     print(json.dumps({"status": "ok", "sql": sql.strip()}))
 
 elif payload["type"] == "analyze":
-    print(json.dumps({"status": "thik hia", "analysis": analyze(payload.get("rows", []), payload.get("goal", ""), payload.get("prompt", ""))}))
+    print(json.dumps({"status": "thik hia", "analysis": analyze(payload.get("rows", []), payload.get("goal", {}), payload.get("prompt", ""))}))
 
 else:
     print(json.dumps({"status": "error", "msg": "Unknown type"}))

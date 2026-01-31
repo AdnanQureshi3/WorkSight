@@ -29,15 +29,7 @@ export function getAppUsage(date: string) {
   return res;
 }
 
-export function getYouTubeBreakdown(date: string) {
-  return db.prepare(`
-    SELECT category, SUM(duration_sec) as total_sec
-    FROM activity_log
-    WHERE domain = 'youtube.com'
-      AND DATE(start_time) = ?
-    GROUP BY category
-  `).all(date);
-}
+
 export function updateUserProfile(profileData: any) {
   ensureUserProfileTable();
 
@@ -51,7 +43,8 @@ export function updateUserProfile(profileData: any) {
       final_goal = ?,
       productive_apps = ?,
       distraction_apps = ?,
-      neutral_apps = ?
+      neutral_apps = ?,
+      api_key= ?
     WHERE id = 1
   `).run(
     profileData.username,
@@ -61,7 +54,8 @@ export function updateUserProfile(profileData: any) {
     profileData.final_goal,
     JSON.stringify(profileData.productive_apps || []),
     JSON.stringify(profileData.distraction_apps || []),
-    JSON.stringify(profileData.neutral_apps || [])
+    JSON.stringify(profileData.neutral_apps || []),
+    profileData.api_key
   );
 }
 
@@ -69,6 +63,7 @@ export function updateUserProfile(profileData: any) {
 
 function ensureUserProfileTable() {
   // create table safely
+ 
   db.prepare(`
     CREATE TABLE IF NOT EXISTS user_profile (
       id INTEGER PRIMARY KEY,
@@ -79,9 +74,11 @@ function ensureUserProfileTable() {
       final_goal TEXT,
       productive_apps TEXT,
       distraction_apps TEXT,
-      neutral_apps TEXT
+      neutral_apps TEXT,
+      api_key TEXT
     )
   `).run();
+
 
   // ensure row
   db.prepare(`
@@ -109,6 +106,10 @@ function ensureUserProfileTable() {
     db.prepare(
       `ALTER TABLE user_profile ADD COLUMN neutral_apps TEXT DEFAULT '[]'`
     ).run();
+    if (!cols.includes("api_key"))
+  db.prepare(
+    `ALTER TABLE user_profile ADD COLUMN api_key TEXT`
+  ).run();
 }
 
 
@@ -294,7 +295,7 @@ export function runSafeSQL(sql: string) {
 export function getuserGoal(){
   ensureUserProfileTable();
   const row = db.prepare(
-    "SELECT final_goal FROM user_profile WHERE id = 1"
+    "SELECT final_goal , api_key FROM user_profile WHERE id = 1"
   ).get();
-  return row.final_goal;
+  return { finalGoal: row.final_goal, apiKey: row.api_key };
 }

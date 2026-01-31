@@ -3,7 +3,7 @@ import path from "path";
 import { spawn } from "child_process";
 import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
-import { getDailyCategorySummary, getAppUsage, getYouTubeBreakdown,
+import { getDailyCategorySummary, getAppUsage,
    updateUserProfile, getUserProfile, 
    getWeeklyHistory, getWeeklyStats , getDailyGroupedUsage, runSafeSQL, getuserGoal } from "./db.js"; 
 
@@ -117,12 +117,13 @@ ipcMain.handle("get-data", async () => {
 
 // AI NATURAL-LANGUAGE → SQL → ANALYZE PIPELINE 
 ipcMain.handle("ai-query", async (event, prompt: string) => {
-  console.log("AI Query requested:", prompt);
+  let goal = getuserGoal();
+  console.log("gaol is :", goal);
 
   // 1) Ask Python to generate a SQL query from the natural language prompt
   let gen;
   try {
-    gen = await runPythonAI({ type: "generate_sql", prompt });
+    gen = await runPythonAI({ type: "generate_sql", prompt , goal });
   } catch (err: any) {
     console.error("AI generation error:", err);
     return { status: "error", error: "AI generation failed", detail: String(err) };
@@ -144,7 +145,8 @@ ipcMain.handle("ai-query", async (event, prompt: string) => {
   }
 
   // 3) Send results back to the AI for analysis / natural language summary
- let goal = getuserGoal();
+
+ console.log("User goal retrieved:", goal);
 
   let analysis;
   try {
