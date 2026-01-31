@@ -68,7 +68,7 @@ def main():
                 end_time = datetime.datetime.now()
                 duration = int((end_time - start_time).total_seconds())
 
-                if duration >= 5:
+                if duration >= 5 and last_app != "Unknown" and last_app != "" and last_app != "LockApp.exe":
                     
 
                     cur.execute("""
