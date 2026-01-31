@@ -90,7 +90,7 @@ export default function DashboardView({ data, setView }: DashboardViewProps) {
 
       {/* AI Insight Section */}
       <div className="relative group">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-xl blur opacity-10 group-hover:opacity-20 transition duration-1000"></div>
+        <div className="absolute -inset-0.5  from-blue-500 to-cyan-600 rounded-xl blur opacity-10 group-hover:opacity-20 transition duration-1000"></div>
         <Card className="relative bg-slate-900 border-slate-800 p-6">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-3">

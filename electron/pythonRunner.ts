@@ -2,8 +2,10 @@ import { spawn } from "child_process";
 
 export function runPythonAI(payload: any) {
     console.log("Running Python AI with payload:", payload);
+    
   return new Promise<any>((resolve, reject) => {
-    const py = spawn("python", ["python/ai_worker.py"]);
+    const py = spawn("python/venv/Scripts/python.exe", ["python/ai_worker.py"]);
+
 
     let output = "";
     let error = "";

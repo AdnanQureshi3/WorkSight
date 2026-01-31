@@ -53,17 +53,12 @@ export default function AIQuery() {
 
       {result && (
         <div className="mt-3 text-sm text-slate-200">
-          <div className="mb-2">
-            <strong>SQL:</strong>
-            <pre className="text-xs bg-slate-900 p-2 rounded mt-1 overflow-auto">
-              {result.sql}
-            </pre>
-          </div>
+          
 
           <div className="mb-2">
             <strong>AI Analysis:</strong>
-            <pre className="text-xs bg-slate-900 p-2 rounded mt-1 overflow-auto">
-              {JSON.stringify(result.analysis, null, 2)}
+            <pre className="text-xs bg-slate-900 p-2 text-wrap rounded mt-1 overflow-auto">
+              {result.analysis.analysis}
             </pre>
           </div>
 

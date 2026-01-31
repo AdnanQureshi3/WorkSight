@@ -266,6 +266,8 @@ export function getDailyGroupedUsage(date: string) {
  * - Must reference at least one allowed table
  */
 export function runSafeSQL(sql: string) {
+  console.log("Running safe SQL query:");
+  
   const cleaned = (sql || "").trim();
   const lowered = cleaned.toLowerCase();
 
@@ -287,4 +289,12 @@ export function runSafeSQL(sql: string) {
   }
 
   return db.prepare(cleaned).all();
+}
+
+export function getuserGoal(){
+  ensureUserProfileTable();
+  const row = db.prepare(
+    "SELECT final_goal FROM user_profile WHERE id = 1"
+  ).get();
+  return row.final_goal;
 }

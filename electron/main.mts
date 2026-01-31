@@ -5,7 +5,7 @@ import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
 import { getDailyCategorySummary, getAppUsage, getYouTubeBreakdown,
    updateUserProfile, getUserProfile, 
-   getWeeklyHistory, getWeeklyStats , getDailyGroupedUsage, runSafeSQL } from "./db.js"; 
+   getWeeklyHistory, getWeeklyStats , getDailyGroupedUsage, runSafeSQL, getuserGoal } from "./db.js"; 
 
 
    import { runPythonAI } from "./pythonRunner.js";
@@ -144,9 +144,11 @@ ipcMain.handle("ai-query", async (event, prompt: string) => {
   }
 
   // 3) Send results back to the AI for analysis / natural language summary
+ let goal = getuserGoal();
+
   let analysis;
   try {
-    analysis = await runPythonAI({ type: "analyze", prompt, sql, rows });
+    analysis = await runPythonAI({ type: "analyze", prompt, sql, rows, goal });
   } catch (err: any) {
     console.error("AI analysis error:", err);
     analysis = { status: "error", error: String(err) };
