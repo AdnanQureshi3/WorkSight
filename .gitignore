@@ -21,3 +21,8 @@ database/*.db
 desktop.ini
 
 .env
+python/dist/
+python/build/
+
+
+electron/resources/
