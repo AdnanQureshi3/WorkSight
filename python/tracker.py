@@ -7,7 +7,15 @@ import win32process
 import os
 import json
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "../database/worksight.db")
+BASE_DIR = os.path.join(
+    os.environ["APPDATA"],   # C:\Users\<user>\AppData\Roaming
+    "WorkSight"
+)
+
+os.makedirs(BASE_DIR, exist_ok=True)
+
+DB_PATH = os.path.join(BASE_DIR, "worksight.db")
+
 
 def get_active_app():
     try:
@@ -19,23 +27,10 @@ def get_active_app():
         return "Unknown", "Unknown"
 
 
-def load_user_rules(conn):
-    cur = conn.cursor()
-    row = cur.execute(
-        "SELECT productive_apps, distraction_apps, neutral_apps FROM user_profile WHERE id = 1"
-    ).fetchone()
-
-    if not row:
-        return [], [], []
-
-    return (
-        json.loads(row[0] or "[]"),
-        json.loads(row[1] or "[]"),
-        json.loads(row[2] or "[]"),
-    )
 
 def main():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, timeout=30)
+
     cur = conn.cursor()
 
     cur.execute("""
@@ -52,8 +47,6 @@ def main():
     """)
     conn.commit()
 
-    rules = load_user_rules(conn)
-    print("Loaded user rules:", rules)
 
     last_app, last_title = get_active_app()
     start_time = datetime.datetime.now()

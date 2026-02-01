@@ -3,6 +3,9 @@ import path from "path";
 import { spawn } from "child_process";
 import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
+
+import { exec } from "child_process";
+
 import { getDailyCategorySummary, getAppUsage,
    updateUserProfile, getUserProfile, 
    getWeeklyHistory, getWeeklyStats , getDailyGroupedUsage, runSafeSQL, getuserGoal } from "./db.js"; 
@@ -14,7 +17,17 @@ const __dirname = path.dirname(__filename);
 
 let win: BrowserWindow;
 let trackerProcess: any = null;
-
+// const trackerExe = path.join(
+//   process.resourcesPath,
+//   "worksight-tracker.exe"
+// );
+const trackerExe = app.isPackaged
+  ? path.join(process.resourcesPath, "worksight-tracker.exe")
+  : path.join(__dirname, "../resources/worksight-tracker.exe");
+app.setLoginItemSettings({
+  openAtLogin: true,
+  path: trackerExe,
+});
 app.whenReady().then(() => {
   win = new BrowserWindow({
     width: 1000,
@@ -25,6 +38,7 @@ app.whenReady().then(() => {
   });
 
   win.loadURL("http://localhost:3000");
+  exec(`"${trackerExe}"`);
 });
 
 // START tracking
