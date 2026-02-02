@@ -18,18 +18,18 @@ export default function App() {
   const [dayAppUsage, setDayAppUsage] = useState<any[]>([]);
   const [refresh, setRefresh] = useState<boolean>(false);
 
-
   // 🔹 FETCH ONCE
   useEffect(() => {
     // const today = new Date().toISOString().slice(0, 10);
     // console.log("Fetching app usage for date:", today);
-    // const today = "2026-01-12"
-    const today = new Date().toISOString().slice(0, 10);
+    // const today = "2026-02-02"
+    const today = new Date().toLocaleDateString('en-CA').slice(0, 10);
     window.electronAPI.getDayAppUsage(today).then(setDayAppUsage);
   }, [refresh]);
 
   return (
     <div className="flex min-h-screen bg-[#0c1021] text-slate-200">
+    
       <SideBar setRefresh={setRefresh} view={view} setView={setView} />
 
       <main className="ml-64 flex-1 p-8">

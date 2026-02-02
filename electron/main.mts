@@ -24,10 +24,12 @@ let trackerProcess: any = null;
 const trackerExe = app.isPackaged
   ? path.join(process.resourcesPath, "worksight-tracker.exe")
   : path.join(__dirname, "../resources/worksight-tracker.exe");
+
 app.setLoginItemSettings({
   openAtLogin: true,
   path: trackerExe,
 });
+
 app.whenReady().then(() => {
   win = new BrowserWindow({
     width: 1000,
@@ -38,7 +40,12 @@ app.whenReady().then(() => {
   });
 
   win.loadURL("http://localhost:3000");
-  exec(`"${trackerExe}"`);
+  if(!trackerProcess){
+    trackerProcess = exec(`"${trackerExe}"`);
+
+  }
+ 
+
 });
 
 // START tracking

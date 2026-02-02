@@ -1,3 +1,18 @@
+import sys
+import win32event
+import win32api
+import winerror
+
+mutex = win32event.CreateMutex(
+    None,
+    False,
+    "Global\\WorkSightTrackerMutex"
+)
+
+if win32api.GetLastError() == winerror.ERROR_ALREADY_EXISTS:
+    sys.exit(0)
+
+
 import time
 import sqlite3
 import datetime
@@ -9,46 +24,8 @@ import json
 import os, sys, atexit
 
 BASE_DIR = os.path.join(os.environ["APPDATA"], "WorkSight")
-DB_PATH = os.path.join(BASE_DIR, "worksight.db")
 os.makedirs(BASE_DIR, exist_ok=True)
-
-LOCK = os.path.join(BASE_DIR, "tracker.lock")
-
-def is_tracker_process(pid: int) -> bool:
-    try:
-        p = psutil.Process(pid)
-        return "worksight-tracker" in p.name().lower()
-    except:
-        return False
-
-# check existing lock
-if os.path.exists(LOCK):
-    try:
-        with open(LOCK, "r") as f:
-            old_pid = int(f.read().strip())
-        if is_tracker_process(old_pid):
-            sys.exit(0)  # real tracker already running
-    except:
-        pass
-    # stale lock → remove
-    try:
-        os.remove(LOCK)
-    except:
-        pass
-
-# create new lock
-with open(LOCK, "w") as f:
-    f.write(str(os.getpid()))
-
-def cleanup():
-    try:
-        os.remove(LOCK)
-    except:
-        pass
-
-atexit.register(cleanup)
-
-
+DB_PATH = os.path.join(BASE_DIR, "worksight.db")
 
 
 
