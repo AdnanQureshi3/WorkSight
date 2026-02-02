@@ -17,6 +17,9 @@ export interface IElectronAPI {
   getWeeklyStats: () => Promise<any>;
   getData: () => Promise<any>;
   aiQuery: (prompt: string) => Promise<any>;
+  getChat: () => Promise<Message[]>;
+  setChat: (msgs: Message[]) => Promise<void>;
+  clearChat: () => Promise<void>;
 }
 
 declare global {

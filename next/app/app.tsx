@@ -6,7 +6,7 @@ import DashboardView from "./components/DashboardView";
 import SideBar from "./components/SideBar";
 import HistoryView from "./components/HistoryView";
 import DetailView from "./components/DetailView";
-import PythonTracker from "./components/PythonTracker";
+// import PythonTracker from "./components/PythonTracker";
 import Profile from "./components/Profile";
 import AIQuery from "./components/AIQuery";
 
@@ -27,27 +27,29 @@ export default function App() {
     window.electronAPI.getDayAppUsage(today).then(setDayAppUsage);
   }, [refresh]);
 
-  return (
-    <div className="flex min-h-screen bg-[#0c1021] text-slate-200">
-    
-      <SideBar setRefresh={setRefresh} view={view} setView={setView} />
+ return (
+  <div className="flex h-screen overflow-hidden bg-[#0c1021] text-slate-200">
+    <SideBar setRefresh={setRefresh} view={view} setView={setView} />
 
-      <main className="ml-64 flex-1 p-8">
-        {view === "dashboard" && (
-          <DashboardView data={dayAppUsage} setView={setView} />
-        )}
+    <main className="ml-64 flex-1 p-8 overflow-hidden">
+      {view === "dashboard" && (
+        <DashboardView data={dayAppUsage} setView={setView} />
+      )}
 
-        {view === "detail" && (
-          <DetailView data={dayAppUsage} setView={setView} />
-        )}
-        {view === "ai" && <AIQuery />}
+      {view === "detail" && (
+        <DetailView data={dayAppUsage} setView={setView} />
+      )}
 
-     
-        {view === "history" && <HistoryView setView={setView} />}
-        {view === "profile" && <Profile setView={setView} />}
-      </main>
+      {view === "ai" && (
+        <div className="h-full">
+          <AIQuery />
+        </div>
+      )}
 
-      <PythonTracker />
-    </div>
-  );
+      {view === "history" && <HistoryView setView={setView} />}
+      {view === "profile" && <Profile setView={setView} />}
+    </main>
+  </div>
+);
+
 }

@@ -66,7 +66,7 @@ function SideBar({ setRefresh, view, setView }: SideBarProps) {
 
 
       {/* Start / Stop Tracking */}
-      <div className="px-4 pb-4">
+      {/* <div className="px-4 pb-4">
         <button onClick={toggleTracking}
   className={`w-full py-3 rounded-lg cursor-pointer font-semibold text-sm transition-all
     ${
@@ -79,7 +79,7 @@ function SideBar({ setRefresh, view, setView }: SideBarProps) {
   {isTracking ? "Stop Tracking" : "Start Tracking"}
 </button>
 
-      </div>
+      </div> */}
 
       {/* Profile */}
       <div
