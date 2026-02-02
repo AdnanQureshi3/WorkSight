@@ -1,7 +1,9 @@
 import Database from "better-sqlite3";
 import path from "path";
 
-const dbPath = path.join(process.cwd(), "database", "worksight.db");
+// BASE_DIR = os.path.join(os.environ["APPDATA"], "WorkSight")
+// DB_PATH = os.path.join(BASE_DIR, "worksight.db")
+const dbPath = path.join(process.env.APPDATA!, "WorkSight", "worksight.db");
 export const db = new Database(dbPath);
 
 export function getDailyCategorySummary(date: string) {
@@ -80,36 +82,36 @@ function ensureUserProfileTable() {
   `).run();
 
 
-  // ensure row
-  db.prepare(`
-    INSERT OR IGNORE INTO user_profile (id)
-    VALUES (1)
-  `).run();
+  // // ensure row
+  // db.prepare(`
+  //   INSERT OR IGNORE INTO user_profile (id)
+  //   VALUES (1)
+  // `).run();
 
   // ensure columns (OLD DB FIX)
-  const cols = db
-    .prepare(`PRAGMA table_info(user_profile)`)
-    .all()
-    .map((c: any) => c.name);
+  // const cols = db
+  //   .prepare(`PRAGMA table_info(user_profile)`)
+  //   .all()
+  //   .map((c: any) => c.name);
 
-  if (!cols.includes("productive_apps"))
-    db.prepare(
-      `ALTER TABLE user_profile ADD COLUMN productive_apps TEXT DEFAULT '[]'`
-    ).run();
+  // if (!cols.includes("productive_apps"))
+  //   db.prepare(
+  //     `ALTER TABLE user_profile ADD COLUMN productive_apps TEXT DEFAULT '[]'`
+  //   ).run();
 
-  if (!cols.includes("distraction_apps"))
-    db.prepare(
-      `ALTER TABLE user_profile ADD COLUMN distraction_apps TEXT DEFAULT '[]'`
-    ).run();
+  // if (!cols.includes("distraction_apps"))
+  //   db.prepare(
+  //     `ALTER TABLE user_profile ADD COLUMN distraction_apps TEXT DEFAULT '[]'`
+  //   ).run();
 
-  if (!cols.includes("neutral_apps"))
-    db.prepare(
-      `ALTER TABLE user_profile ADD COLUMN neutral_apps TEXT DEFAULT '[]'`
-    ).run();
-    if (!cols.includes("api_key"))
-  db.prepare(
-    `ALTER TABLE user_profile ADD COLUMN api_key TEXT`
-  ).run();
+  // if (!cols.includes("neutral_apps"))
+  //   db.prepare(
+  //     `ALTER TABLE user_profile ADD COLUMN neutral_apps TEXT DEFAULT '[]'`
+  //   ).run();
+  //   if (!cols.includes("api_key"))
+  // db.prepare(
+  //   `ALTER TABLE user_profile ADD COLUMN api_key TEXT`
+  // ).run();
 }
 
 
