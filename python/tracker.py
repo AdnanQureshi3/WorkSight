@@ -6,15 +6,50 @@ import win32gui
 import win32process
 import os
 import json
+import os, sys, atexit
 
-BASE_DIR = os.path.join(
-    os.environ["APPDATA"],   # C:\Users\<user>\AppData\Roaming
-    "WorkSight"
-)
-
+BASE_DIR = os.path.join(os.environ["APPDATA"], "WorkSight")
+DB_PATH = os.path.join(BASE_DIR, "worksight.db")
 os.makedirs(BASE_DIR, exist_ok=True)
 
-DB_PATH = os.path.join(BASE_DIR, "worksight.db")
+LOCK = os.path.join(BASE_DIR, "tracker.lock")
+
+def is_tracker_process(pid: int) -> bool:
+    try:
+        p = psutil.Process(pid)
+        return "worksight-tracker" in p.name().lower()
+    except:
+        return False
+
+# check existing lock
+if os.path.exists(LOCK):
+    try:
+        with open(LOCK, "r") as f:
+            old_pid = int(f.read().strip())
+        if is_tracker_process(old_pid):
+            sys.exit(0)  # real tracker already running
+    except:
+        pass
+    # stale lock → remove
+    try:
+        os.remove(LOCK)
+    except:
+        pass
+
+# create new lock
+with open(LOCK, "w") as f:
+    f.write(str(os.getpid()))
+
+def cleanup():
+    try:
+        os.remove(LOCK)
+    except:
+        pass
+
+atexit.register(cleanup)
+
+
+
 
 
 def get_active_app():
