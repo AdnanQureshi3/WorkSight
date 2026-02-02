@@ -69,7 +69,7 @@ def main():
             app, title = get_active_app()
 
             if app != last_app or title != last_title:
-                print(f"Switched from {last_app} - {last_title} to {app} - {title}")
+                # print(f"Switched from {last_app} - {last_title} to {app} - {title}")
                 end_time = datetime.datetime.now()
                 duration = int((end_time - start_time).total_seconds())
 
