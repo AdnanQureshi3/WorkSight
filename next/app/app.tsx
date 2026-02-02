@@ -6,7 +6,6 @@ import DashboardView from "./components/DashboardView";
 import SideBar from "./components/SideBar";
 import HistoryView from "./components/HistoryView";
 import DetailView from "./components/DetailView";
-// import PythonTracker from "./components/PythonTracker";
 import Profile from "./components/Profile";
 import AIQuery from "./components/AIQuery";
 

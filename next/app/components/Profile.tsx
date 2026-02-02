@@ -16,14 +16,14 @@ export default function Profile({ setView }: ProfileProps) {
   const [apiKey, setApiKey] = useState("");
 
   // app classification
-  const [productiveApps, setProductiveApps] = useState<string[]>([]);
-  const [distractionApps, setDistractionApps] = useState<string[]>([]);
-  const [neutralApps, setNeutralApps] = useState<string[]>([]);
+  // const [productiveApps, setProductiveApps] = useState<string[]>([]);
+  // const [distractionApps, setDistractionApps] = useState<string[]>([]);
+  // const [neutralApps, setNeutralApps] = useState<string[]>([]);
 
-  // input helpers
-  const [prodInput, setProdInput] = useState("");
-  const [distInput, setDistInput] = useState("");
-  const [neutralInput, setNeutralInput] = useState("");
+  // // input helpers
+  // const [prodInput, setProdInput] = useState("");
+  // const [distInput, setDistInput] = useState("");
+  // const [neutralInput, setNeutralInput] = useState("");
 
   /* -------- FETCH PROFILE -------- */
   useEffect(() => {
@@ -33,9 +33,9 @@ export default function Profile({ setView }: ProfileProps) {
       setSystemPrompt(data.system_prompt || "");
       setFinalGoal(data.final_goal || "");
 
-      setProductiveApps(data.productive_apps || []);
-      setDistractionApps(data.distraction_apps || []);
-      setNeutralApps(data.neutral_apps || []);
+      // setProductiveApps(data.productive_apps || []);
+      // setDistractionApps(data.distraction_apps || []);
+      // setNeutralApps(data.neutral_apps || []);
 
       setApiKey(data.api_key || "");
     });
@@ -49,9 +49,7 @@ export default function Profile({ setView }: ProfileProps) {
       email: "",
       system_prompt: systemPrompt,
       final_goal: finalGoal,
-      productive_apps: productiveApps,
-      distraction_apps: distractionApps,
-      neutral_apps: neutralApps,
+
       api_key: apiKey,
     });
     setIsEditing(false);
@@ -188,7 +186,7 @@ export default function Profile({ setView }: ProfileProps) {
         </div>
 
         {/* APP CLASSIFICATION */}
-        <div className="border-t border-slate-800 pt-6 space-y-6">
+        {/* <div className="border-t border-slate-800 pt-6 space-y-6">
           {[
             {
               label: "🟢 Productive Apps",
@@ -266,7 +264,7 @@ export default function Profile({ setView }: ProfileProps) {
               )}
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
     </div>
   );
