@@ -20,13 +20,13 @@ if isinstance(payload, list):
 from datetime import datetime
 
 def make_sql(**kwargs):
-    user_query = kwargs.get("user_query", "")
-    user= kwargs.get("user", {})
+    user_query = (kwargs.get("user_query") or "").strip()
+    user = kwargs.get("user", {})
     api_key = user.get("api_key")
     messages = kwargs.get("messages", [])
-    final_goal = user.get("final_goal", "")
-    user_system_prompt = user.get("system_prompt", "")
 
+    if not api_key:
+        raise RuntimeError("Missing api_key")
 
     client = OpenAI(
         api_key=api_key,
@@ -45,34 +45,149 @@ def make_sql(**kwargs):
         - start_time (TEXT)
         - end_time (TEXT)
         - duration_sec (INTEGER)
-        - category (TEXT)
         """
 
+    # 🔴 YOUR SQL RULES — UNCHANGED
     system_prompt = """
-       You are an expert SQL generator for SQLite.
 
-STRICT RULES:
-- Output ONLY raw SQL text.
-- Do NOT use markdown.
-- Do NOT use triple backticks.
-- Do NOT write ```sql or ```sqlite.
-- Do NOT add explanations, comments, or extra text.
-- Return a single executable SQL query only.
+You are an AI decision engine for an activity-tracking assistant.
 
-Always:
+You MUST return ONLY valid JSON in this exact format:
+
+{
+  "status": "ok",
+  "sql_generated": "yes" | "no",
+  "sql": "",
+  "reply": ""
+}
+
+Hard rules:
+- Output ONLY JSON. No markdown. No explanations.
+- status MUST always be "ok".
+- Never fill both sql and reply.
+
+Decision rules:
+- Generate SQL ONLY when the user asks about activity, apps, time spent, productivity, focus, stats, summaries, or timelines.
+- DO NOT generate SQL for greetings, acknowledgements, confirmations, or small talk.
+
+SQL rules (STRICT — DO NOT CHANGE):
+- Output ONLY raw SQL.
+- No markdown, no backticks, no comments.
+- One executable SQLite SELECT query only.
+- Always:
+  GROUP BY window_title, app_name
+  Use SUM(duration_sec) AS total_duration
+
+Data model rules (CRITICAL):
+- app_name = application or browser (Chrome, Brave, Edge, VS Code).
+- Social platforms NEVER appear in app_name.
+- Social platforms appear in window_title (primary) or domain (secondary).
+- NEVER search social names in app_name.
+- app_name MUST still be selected and grouped.
+
+Semantic intent rules:
+- “coding / development / programming” (any language) = CATEGORY-BASED intent.
+- Coding includes:
+  category = 'Coding',
+  OR editors (VS Code, IntelliJ, PyCharm, etc.) in app_name,
+  OR GitHub / GitLab / LeetCode / HackerRank, ETC in window_title.
+
+  dont use .com, use only names like github, gitlab, leetcode, hackerrank
+
+Time rules:
+- If no date mentioned → last 7 days.
+- If a specific day is mentioned (today, yesterday, kal, parso, etc.) → only that date.
+
+Analysis intent:
+- Words like “kaisa”, “progress”, “summary”, “analysis” mean:
+  analyze the FULL grouped result ordered by total_duration DESC.
+
+  Example user queries for analysis:
+  SQL EXAMPLES (REFERENCE ONLY — FOLLOW THIS STYLE):
+
+Example 1: Social media time waste (last 7 days)
+User intent:
+"Social media par time waste toh nahi kar raha?"
+
+SQL example:
+SELECT window_title, app_name, SUM(duration_sec) AS total_duration
+FROM activity_log
+WHERE start_time BETWEEN 'YYYY-MM-DD 00:00:00' AND 'YYYY-MM-DD 23:59:59'
+  AND (
+    window_title LIKE '%facebook%'
+    OR window_title LIKE '%instagram%'
+    OR window_title LIKE '%x.com%'
+    OR window_title LIKE '%twitter%'
+    OR window_title LIKE '%linkedin%'
+    OR window_title LIKE '%reddit%'
+    OR window_title LIKE '%youtube%'
+    OR window_title LIKE '%tiktok%'
+    OR window_title LIKE '%pinterest%'
+    OR window_title LIKE '%snapchat%'
+    OR window_title LIKE '%whatsapp%'
+  )
 GROUP BY window_title, app_name
-Use SUM(duration_sec) AS total_duration
-        """
+ORDER BY total_duration DESC
+
+
+Example 2: Coding analysis (last 7 days, category based)
+User intent:
+"coding kesi chal rahi hai?"
+
+SQL example:
+SELECT window_title, app_name, SUM(duration_sec) AS total_duration
+FROM activity_log
+WHERE start_time BETWEEN 'YYYY-MM-DD 00:00:00' AND 'YYYY-MM-DD 23:59:59'
+  AND (
+    category = 'Coding'
+    OR window_title LIKE '%github%'
+    OR window_title LIKE '%gitlab%'
+    OR window_title LIKE '%leetcode%'
+    OR window_title LIKE '%hackerrank%'
+  )
+GROUP BY window_title, app_name
+ORDER BY total_duration DESC
+
+
+Example 3: Yesterday’s activity
+User intent:
+"kal kya kiya maine?"
+
+SQL example:
+SELECT window_title, app_name, SUM(duration_sec) AS total_duration
+FROM activity_log
+WHERE date(start_time) = date('now','-1 day')
+GROUP BY window_title, app_name
+ORDER BY total_duration DESC
+
+
+Example 4: Today’s full activity
+User intent:
+"aaj kya kya kiya?"
+
+SQL example:
+SELECT window_title, app_name, SUM(duration_sec) AS total_duration
+FROM activity_log
+WHERE date(start_time) = date('now')
+GROUP BY window_title, app_name
+ORDER BY total_duration DESC
+
+
+"""
 
     user_prompt = f"""
-Using the table schema below:
+Schema:
+Table: activity_log
+Columns:
+id, app_name, window_title, start_time, end_time, duration_sec, category
 
-{schema}
+Current datetime:
+{date}
 
-Today's datetime: {date}
-
-Generate an SQL query for this request:
+User request:
 {user_query}
+
+
 """
 
     response = client.chat.completions.create(
@@ -82,13 +197,23 @@ Generate an SQL query for this request:
             {"role": "user", "content": user_prompt}
         ]
     )
-    sql = response.choices[0].message.content.strip()
-    sql = sql.rstrip(";")
 
-    return sql
-   
+    text = response.choices[0].message.content.strip()
 
-    
+    try:
+        result = json.loads(text)
+    except:
+        raise RuntimeError("AI did not return valid JSON")
+
+    # Enforce contract
+    if result.get("sql_generated") == "yes":
+        result["reply"] = ""
+        result["sql"] = result.get("sql", "").rstrip(";").strip()
+    else:
+        result["sql"] = ""
+
+    return result
+
 
 
 def analyze(**kwargs):
@@ -142,11 +267,13 @@ not like this: **`ChatGPT` for 'SQL Generation Tips'**,
 
 
 if payload["type"] == "generate_sql":
-    sql = make_sql(**payload)
+    result = make_sql(**payload)
 
     print(json.dumps({
         "status": "ok",
-        "sql": sql.strip()
+        "sql": result.get("sql", ""),
+        "sql_generated": result.get("sql_generated", "no"),
+        "reply": result.get("reply", "")
     }))
 
 elif payload["type"] == "analyze":

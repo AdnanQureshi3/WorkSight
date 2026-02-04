@@ -155,19 +155,23 @@ ipcMain.handle("ai-query", async (event, messages: any[]) => {
     return { status: "error", error: "AI generation failed", detail: String(err) };
   }
 
-  if (!gen || gen.status !== "ok" || !gen.sql) {
+  if (!gen || gen.status !== "ok" ) {
     return { status: "error", error: "AI failed to generate a SQL query", detail: gen };
   }
-
-  const sql = gen.sql;
+  
+  if(gen.sql_generated === "no"){
+    return { status: "ok", sql: "", analysis: { analysis: gen.reply } };
+  }
 
   // 2) Run the SQL safely on the local DB
+  console.log("Generated SQL:", gen.sql);
   let rows;
   try {
-    rows = runSafeSQL(sql);
-  } catch (err: any) {
+    rows = runSafeSQL(gen.sql);
+  }
+  catch (err: any) {
     console.error("SQL execution error:", err.message);
-    return { status: "error", error: "SQL execution failed", detail: err.message, sql };
+    return { status: "error", error: "SQL execution failed", detail: err.message, sql: gen.sql };
   }
 
   // 3) Send results back to the AI for analysis / natural language summary
@@ -183,5 +187,5 @@ ipcMain.handle("ai-query", async (event, messages: any[]) => {
   }
 
   // 4) Return to the UI
-  return { status: "ok", sql,  analysis };
+  return { status: "ok", sql: gen.sql,  analysis };
 });

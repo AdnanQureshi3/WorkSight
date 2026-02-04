@@ -4,7 +4,7 @@ import next from "next";
 import React, { useState, useRef, useEffect } from "react";
 
 type Message = {
-  role: "user" | "ai";
+  role: "user" | "assistant";
   content: string;
 };
 const STORAGE_KEY = "worksight_ai_chat";
@@ -69,13 +69,13 @@ export default function AIQuery() {
         res?.analysis?.analysis ||
         "Sorry, I couldn't understand that. Try asking in a different way.";
 
-      const aiMessage: Message = { role: "ai", content: aiText };
+      const aiMessage: Message = { role: "assistant", content: aiText };
       setMessages((prev) => [...prev, aiMessage]);
     } catch {
       setMessages((prev) => [
         ...prev,
         {
-          role: "ai",
+          role: "assistant",
           content: "⚠️ Something went wrong. Please try again.",
         },
       ]);
