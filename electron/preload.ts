@@ -12,7 +12,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
 
   getDayAppUsage: (date: string) =>
-    ipcRenderer.invoke("get-day-app-usage", date),
+    ipcRenderer.invoke("getDayAppUsage", date),
 
   // -------- USER PROFILE --------
   getUserProfile: () =>

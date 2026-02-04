@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 
 import { exec } from "child_process";
 
-import { getDailyCategorySummary, getAppUsage,
+import { getDailyCategorySummary, getDayAppUsage,
    updateUserProfile, getUserProfile, 
    getWeeklyHistory, getWeeklyStats , getDailyGroupedUsage, runSafeSQL, getuserGoal } from "./db.js"; 
 
@@ -96,9 +96,10 @@ ipcMain.handle("get-category-breakdown", (event, startDate: string, endDate: str
   console.log("Getting category breakdown from", startDate, "to", endDate);
   // Implement category breakdown retrieval logic here
 });
-ipcMain.handle("get-day-app-usage", (event, date: string) => {
+
+ipcMain.handle("getDayAppUsage", (event, date: string) => {
   console.log("Getting day app usage for date:", date);
-  return getAppUsage(date);
+  return getDayAppUsage(date);
 } );
 
 
@@ -122,6 +123,7 @@ ipcMain.handle("getWeeklyHistory", () => {
 ipcMain.handle("getWeeklyStats", () => {
   return getWeeklyStats();
 });
+
 
 
 ipcMain.handle("get-data", async () => {

@@ -19,18 +19,16 @@ export function getDailyCategorySummary(date: string) {
 
 }
 
-export function getAppUsage(date: string) {
-  const res = db.prepare(`  
-    SELECT app_name, SUM(duration_sec) as total_sec
+
+export function getDayAppUsage(date: string) {
+  return db.prepare(`
+    SELECT app_name, SUM(duration_sec) AS total_sec
     FROM activity_log
     WHERE DATE(start_time) = ?
     GROUP BY app_name
     ORDER BY total_sec DESC
   `).all(date);
-  console.log("App usage result:", res);
-  return res;
 }
-
 
 export function updateUserProfile(profileData: any) {
   ensureUserProfileTable();
@@ -139,15 +137,7 @@ export function getDaySummary(date: string) {
     GROUP BY category
   `).all(date);
 }
-export function getDayAppUsage(date: string) {
-  return db.prepare(`
-    SELECT app_name, SUM(duration_sec) AS total_sec
-    FROM activity_log
-    WHERE DATE(start_time) = ?
-    GROUP BY app_name
-    ORDER BY total_sec DESC
-  `).all(date);
-}
+
 export function getWeekSummary(startDate: string, endDate: string) {
   return db.prepare(`
     SELECT DATE(start_time) AS day, SUM(duration_sec) AS total_sec
