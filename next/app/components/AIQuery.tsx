@@ -26,13 +26,26 @@ export default function AIQuery() {
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  const [username, setUsername] = useState("");
+  const [agentNickname, setAgentNickname] = useState("");
+
 
   // 🔥 Persist chat to Electron main memory whenever it changes
+  useEffect(() => {
+    window.electronAPI.getUserProfile().then((data) => {
+      setUsername(data.username || "");
+      setAgentNickname(data.agent_nickname || "");
+
+    });
+    
+  }, []);
 
   // auto scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+
   }, [messages, loading]);
+
   useEffect(() => {
   saveToSession(messages);
 }, [messages]);
@@ -96,33 +109,70 @@ export default function AIQuery() {
       <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
 
         {messages.length === 0 && !loading && (
-          <div className="h-full flex flex-col items-center justify-center text-center text-slate-400 px-6">
-            <div className="text-3xl mb-3">👋</div>
-            <h2 className="text-lg font-semibold text-slate-200 mb-2">
-              Ask me anything about your activity
-            </h2>
-            <p className="text-sm mb-6 max-w-md">
-              I can understand natural language and show insights from your data.
-            </p>
+  <div className="h-full flex flex-col items-center justify-center text-center px-6">
+    {/* Hero */}
+    <div className="mb-6 flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-600/10 ring-1 ring-emerald-500/20">
+      <span className="text-3xl">🧠</span>
+    </div>
 
-            <div className="grid gap-3 w-full max-w-xl">
-              {[
-                "Show me last month's top apps by usage",
-                "How much time did I spend coding this week?",
-                "Which apps do I open most frequently?",
-                "Show my daily activity pattern",
-              ].map((example, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPrompt(example)}
-                  className="text-left bg-slate-800 hover:bg-slate-700 transition px-4 py-3 rounded-lg text-sm text-slate-300 border border-slate-700"
-                >
-                  {example}
-                </button>
-              ))}
+    <h1 className="text-2xl font-bold text-slate-100 mb-1">
+      Hi {username || "there"}
+    </h1>
+    <p className="text-slate-400 mb-6 max-w-md">
+      I’m your AI assistant{agentNickname && `, ${agentNickname}`}.  
+      Ask me anything about how you spend your time.
+    </p>
+
+    {/* Prompt cards */}
+    <div className="grid gap-3 w-full max-w-xl">
+      {[
+        {
+          title: "Top apps",
+          text: "Show my most used apps this week",
+        },
+        {
+          title: "Focus time",
+          text: "How much time did I spend coding?",
+        },
+        {
+          title: "Daily pattern",
+          text: "Show my daily activity pattern",
+        },
+        {
+          title: "Productivity insight",
+          text: "Give me a productivity summary",
+        },
+      ].map((item, i) => (
+        <button
+          key={i}
+          onClick={() => setPrompt(item.text)}
+          className="group text-left p-4 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/40 transition"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-slate-200">
+                {item.title}
+              </p>
+              <p className="text-xs text-slate-400 mt-1">
+                {item.text}
+              </p>
             </div>
+            <span className="opacity-0 group-hover:opacity-100 transition text-emerald-400">
+              ↵
+            </span>
           </div>
-        )}
+        </button>
+      ))}
+    </div>
+
+    {/* Footer hint */}
+    <p className="mt-6 text-xs text-slate-500">
+      Press <kbd className="px-1 rounded bg-slate-800 border border-slate-700">Enter</kbd>{" "}
+      to send • <kbd className="px-1 rounded bg-slate-800 border border-slate-700">Shift</kbd>
+      +Enter for new line
+    </p>
+  </div>
+)}
 
         {messages.map((msg, i) => (
           <div

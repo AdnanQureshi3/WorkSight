@@ -37,7 +37,7 @@ export default function DetailView({ data, setView }: DetailViewProps) {
               <div className="flex items-center justify-between mb-4">
                 <div className="space-y-1">
                   <p className="text-lg font-semibold text-white">
-                    {log.app_name}
+                    {log.app_name.split(".")[0]}
                   </p>
                   <p className="text-[11px] uppercase tracking-wider text-slate-500">
                     Active Window

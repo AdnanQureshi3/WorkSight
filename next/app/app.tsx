@@ -24,6 +24,7 @@ export default function App() {
     // const today = "2026-02-02"
     const today = new Date().toLocaleDateString('en-CA').slice(0, 10);
     window.electronAPI.getDayAppUsage(today).then(setDayAppUsage);
+    console.log("Fetched app usage data:", dayAppUsage);
   }, [refresh]);
 
  return (
@@ -32,11 +33,16 @@ export default function App() {
 
     <main className="ml-64 flex-1 p-8 overflow-hidden">
       {view === "dashboard" && (
+        <div className="h-screen overflow-y-auto">
         <DashboardView data={dayAppUsage} setView={setView} />
+</div>
       )}
 
       {view === "detail" && (
+        <div className="h-screen overflow-y-auto">
+
         <DetailView data={dayAppUsage} setView={setView} />
+        </div>
       )}
 
       {view === "ai" && (

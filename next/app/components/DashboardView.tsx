@@ -42,19 +42,9 @@ export default function DashboardView({ data, setView }: DashboardViewProps) {
     }));
   }, [data]);
 
-  const analyze = async () => {
-    setIsAnalyzing(true);
-    setTimeout(() => {
-      setAiAnalysis({
-        score: 78,
-        summary: "Usage is concentrated in a small set of applications with long continuous sessions.",
-      });
-      setIsAnalyzing(false);
-    }, 800);
-  };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 p-6 text-slate-100">
+    <div className="max-w-4xl mb-10 mx-auto space-y-8 p-6 text-slate-100">
       <header className="flex justify-between items-end">
         <div>
           <h2 className="text-4xl font-extrabold tracking-tight">
@@ -78,7 +68,7 @@ export default function DashboardView({ data, setView }: DashboardViewProps) {
         <Card className="p-5 border-slate-800 bg-slate-900/50 hover:border-blue-500/50 transition-colors">
           <Layout className="text-blue-400 mb-3" size={20} />
           <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Top App</p>
-          <p className="text-2xl font-bold mt-1 truncate">{topApp?.app_name || "--"}</p>
+          <p className="text-2xl font-bold mt-1 truncate">{topApp?.app_name.split(".")[0] || "--"}</p>
         </Card>
 
         <Card className="p-5 border-slate-800 bg-slate-900/50 hover:border-blue-500/50 transition-colors">
@@ -97,7 +87,7 @@ export default function DashboardView({ data, setView }: DashboardViewProps) {
           {activities.map((a, i) => (
             <div key={i} className="group">
               <div className="flex justify-between text-sm mb-2">
-                <span className="font-semibold text-slate-200 group-hover:text-blue-400 transition-colors">{a.app}</span>
+                <span className="font-semibold text-slate-200 group-hover:text-blue-400 transition-colors">{a.app.split(".")[0]}</span>
                 <span className="text-slate-400 tabular-nums">{a.min} min</span>
               </div>
               <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
