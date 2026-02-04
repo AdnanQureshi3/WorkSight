@@ -98,7 +98,7 @@ ipcMain.handle("get-category-breakdown", (event, startDate: string, endDate: str
 });
 
 ipcMain.handle("getDayAppUsage", (event, date: string) => {
-  console.log("Getting day app usage for date:", date);
+  // console.log("Getting day app usage for date:", date);
   return getDayAppUsage(date);
 } );
 
@@ -109,7 +109,7 @@ ipcMain.handle("update-user-profile", (event, profileData: any) => {
   updateUserProfile(profileData);
 });
 ipcMain.handle("get-user-profile", (event) => { 
-  console.log("Getting user profile");
+  // console.log("Getting user profile");
   return getUserProfile();
 });
 
@@ -139,14 +139,17 @@ ipcMain.handle("get-data", async () => {
 });
 
 // AI NATURAL-LANGUAGE → SQL → ANALYZE PIPELINE 
-ipcMain.handle("ai-query", async (event, prompt: string) => {
-  let goal = getuserGoal();
-  console.log("gaol is :", goal);
+ipcMain.handle("ai-query", async (event, messages: any[]) => {
+  let user = getUserProfile();
+  console.log("user is :", user);
+
+  const user_query = messages[messages.length - 1].content;
+  console.log("AI Query received:", user_query); 
 
   // 1) Ask Python to generate a SQL query from the natural language prompt
   let gen;
   try {
-    gen = await runPythonAI({ type: "generate_sql", prompt , goal });
+    gen = await runPythonAI({ type: "generate_sql", messages , user_query, user });
   } catch (err: any) {
     console.error("AI generation error:", err);
     return { status: "error", error: "AI generation failed", detail: String(err) };
@@ -169,11 +172,11 @@ ipcMain.handle("ai-query", async (event, prompt: string) => {
 
   // 3) Send results back to the AI for analysis / natural language summary
 
- console.log("User goal retrieved:", goal);
+;
 
   let analysis;
   try {
-    analysis = await runPythonAI({ type: "analyze", prompt, sql, rows, goal });
+    analysis = await runPythonAI({ type: "analyze", messages,rows,user, user_query });
   } catch (err: any) {
     console.error("AI analysis error:", err);
     analysis = { status: "error", error: String(err) };

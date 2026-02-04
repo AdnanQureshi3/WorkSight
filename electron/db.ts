@@ -287,7 +287,7 @@ export function runSafeSQL(sql: string) {
 export function getuserGoal(){
   ensureUserProfileTable();
   const row = db.prepare(
-    "SELECT final_goal , api_key FROM user_profile WHERE id = 1"
+    "SELECT *  FROM user_profile WHERE id = 1"
   ).get();
   return { finalGoal: row.final_goal, apiKey: row.api_key };
 }

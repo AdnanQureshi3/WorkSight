@@ -32,7 +32,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.invoke("get-data"),
 
   // -------- AI QUERY (natural language → SQL → analyze) --------
-  aiQuery: (prompt: string) => ipcRenderer.invoke("ai-query", prompt),
+  aiQuery: (messages: any[]) => ipcRenderer.invoke("ai-query", messages),
 
 
 

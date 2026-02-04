@@ -19,10 +19,17 @@ if isinstance(payload, list):
 
 from datetime import datetime
 
-def make_sql(prompt, api_key=None):
+def make_sql(**kwargs):
+    user_query = kwargs.get("user_query", "")
+    user= kwargs.get("user", {})
+    api_key = user.get("api_key")
+    messages = kwargs.get("messages", [])
+    final_goal = user.get("final_goal", "")
+    user_system_prompt = user.get("system_prompt", "")
+
 
     client = OpenAI(
-        api_key = api_key,
+        api_key=api_key,
         base_url="https://generativelanguage.googleapis.com/v1beta/"
     )
 
@@ -65,7 +72,7 @@ Using the table schema below:
 Today's datetime: {date}
 
 Generate an SQL query for this request:
-{prompt}
+{user_query}
 """
 
     response = client.chat.completions.create(
@@ -84,9 +91,17 @@ Generate an SQL query for this request:
     
 
 
-def analyze(rows, goal, prompt):
+def analyze(**kwargs):
+    rows = kwargs.get("rows", [])
+    user = kwargs.get("user", {})
+    user_query = kwargs.get("user_query", "")
+    api_key = user.get("api_key")
+    final_goal = user.get("final_goal", "")
+    user_system_prompt = user.get("system_prompt", "")
+    messages = kwargs.get("messages", [])
+
     client = OpenAI(
-        api_key = goal.get("apiKey"),
+        api_key = api_key,
         base_url="https://generativelanguage.googleapis.com/v1beta/"
     )
     system_prompt = """
@@ -98,8 +113,8 @@ def analyze(rows, goal, prompt):
     user_prompt = f"""
 Given the following data rows:
 {json.dumps(rows)}
-User's goal: {goal.get("final_goal", "N/A")}
-User's Prompt:{prompt}
+User's goal: {final_goal}
+User's Prompt:{user_query}
 Provide a natural language analysis of the data.
 Provide a suggestions how can user improve based on his goal.
 Tell where is waste of time and how to reduce it.
@@ -120,20 +135,24 @@ not like this: **`ChatGPT` for 'SQL Generation Tips'**,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
-        ]
+        ] + messages
     )
     analysis = response.choices[0].message.content.strip()
     return analysis
 
 
 if payload["type"] == "generate_sql":
-    
-    sql = make_sql(payload.get("prompt", "") , payload.get("goal", {}).get("apiKey"))
-    print(json.dumps({"status": "ok", "sql": sql.strip()}))
+    sql = make_sql(**payload)
+
+    print(json.dumps({
+        "status": "ok",
+        "sql": sql.strip()
+    }))
 
 elif payload["type"] == "analyze":
-    print(json.dumps({"status": "thik hia", "analysis": analyze(payload.get("rows", []), payload.get("goal", {}), payload.get("prompt", ""))}))
-
-else:
-    print(json.dumps({"status": "error", "msg": "Unknown type"}))
+    analysis_text = analyze(**payload)
+    print(json.dumps({
+        "status": "ok",
+        "analysis": analysis_text
+    }))
 

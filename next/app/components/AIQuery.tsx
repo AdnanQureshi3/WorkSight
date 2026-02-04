@@ -1,5 +1,6 @@
 "use client";
 
+import next from "next";
 import React, { useState, useRef, useEffect } from "react";
 
 type Message = {
@@ -55,12 +56,14 @@ export default function AIQuery() {
     if (!prompt.trim()) return;
 
     const userMessage: Message = { role: "user", content: prompt };
+    const nextMessages = [...messages, userMessage];
     setMessages((prev) => [...prev, userMessage]);
     setPrompt("");
     setLoading(true);
 
     try {
-      const res = await window.electronAPI.aiQuery(userMessage.content);
+      console.log("Sending messages to Electron main for AI processing:", nextMessages);
+      const res = await window.electronAPI.aiQuery(nextMessages);
 
       const aiText =
         res?.analysis?.analysis ||
