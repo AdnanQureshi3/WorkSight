@@ -5,13 +5,6 @@ export interface LogEntry {
   timeStart: string;
   timeEnd: string;
 }
-export type ParsedActivity = {
-  app: string;
-  task: string;
-  duration: string;
-  type: "work" | "distraction";
-  time: string;
-};
 
 export type DashboardViewProps = {
  
