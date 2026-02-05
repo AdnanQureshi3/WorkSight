@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
+import { getWeekSummary } from "./db";
 
 console.log("preload: exposing electronAPI (includes aiQuery if present)");
 
@@ -14,6 +15,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getDayAppUsage: (date: string) =>
     ipcRenderer.invoke("getDayAppUsage", date),
 
+
   // -------- USER PROFILE --------
   getUserProfile: () =>
     ipcRenderer.invoke("get-user-profile"),
@@ -28,8 +30,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   stopTracking: () =>
     ipcRenderer.send("stop-tracking"),
   
-  getData:()=>
-    ipcRenderer.invoke("get-data"),
 
   // -------- AI QUERY (natural language → SQL → analyze) --------
   aiQuery: (messages: any[]) => ipcRenderer.invoke("ai-query", messages),
@@ -38,7 +38,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
 
   // -------- GOALS --------
 
-   getWeeklyHistory: () => ipcRenderer.invoke("getWeeklyHistory"),
-   getWeeklyStats: () => ipcRenderer.invoke("getWeeklyStats"),
+  
 });
 

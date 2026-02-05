@@ -6,9 +6,9 @@ import { fileURLToPath } from "url";
 
 import { exec } from "child_process";
 
-import { getDailyCategorySummary, getDayAppUsage,
-   updateUserProfile, getUserProfile, 
-   getWeeklyHistory, getWeeklyStats , getDailyGroupedUsage, runSafeSQL, getuserGoal } from "./db.js"; 
+import { getDayAppUsage,
+   updateUserProfile, getUserProfile, runSafeSQL, 
+   getWeekSummary} from "./db.js"; 
 
 
    import { runPythonAI } from "./pythonRunner.js";
@@ -21,6 +21,7 @@ let trackerProcess: any = null;
 //   process.resourcesPath,
 //   "worksight-tracker.exe"
 // );
+
 const trackerExe = app.isPackaged
   ? path.join(process.resourcesPath, "worksight-tracker.exe")
   : path.join(__dirname, "../resources/worksight-tracker.exe");
@@ -84,14 +85,7 @@ ipcMain.on("stop-tracking", () => {
 });
 
 
-ipcMain.handle("get-day-summary", (event, date: string) => {
-  console.log("Getting day summary for date:", date);
-  return getDailyCategorySummary(date);
-});
-ipcMain.handle("get-week-summary", (event, startDate: string, endDate: string) => {
-  console.log("Getting week summary from", startDate, "to", endDate);
-  // Implement week summary retrieval logic here
-});
+
 ipcMain.handle("get-category-breakdown", (event, startDate: string, endDate: string) => {
   console.log("Getting category breakdown from", startDate, "to", endDate);
   // Implement category breakdown retrieval logic here
@@ -113,32 +107,15 @@ ipcMain.handle("get-user-profile", (event) => {
   return getUserProfile();
 });
 
-
-
-
-
-ipcMain.handle("getWeeklyHistory", () => {
-  return getWeeklyHistory();
-});
-ipcMain.handle("getWeeklyStats", () => {
-  return getWeeklyStats();
+ipcMain.handle("get-week-summary", (event, startDate: string, endDate: string) => { 
+  console.log("Getting week summary from", startDate, "to", endDate);
+  const data =  getWeekSummary(startDate, endDate);
+  console.log("Week summary data retrieved:", data);
+  return data;
 });
 
+// AI NATURAL-LANGUAGE → SQL → ANALYZE PIPELINE
 
-
-ipcMain.handle("get-data", async () => {
-  console.log("Getting data for AI processing");
-  const today = new Date().toISOString().split('T')[0];
-  const data = getDailyGroupedUsage(today);
-
-  const aiResult = await runPythonAI(data);
-  // 3. Return to UI
-  return aiResult;
-
-
-});
-
-// AI NATURAL-LANGUAGE → SQL → ANALYZE PIPELINE 
 ipcMain.handle("ai-query", async (event, messages: any[]) => {
   let user = getUserProfile();
   console.log("user is :", user);
