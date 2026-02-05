@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { ArrowLeft } from "lucide-react";
-import { Card } from "./Card";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 type DayData = {
   day: string;
   total_sec: number;
 };
 
-function secToHours(sec: number) {
-  return sec / 3600;
-}
+const secToHours = (sec: number) => sec / 3600;
 
 export default function HistoryView({
   setView,
@@ -17,78 +14,125 @@ export default function HistoryView({
   setView: (view: "dashboard" | "history" | "detail") => void;
 }) {
   const [weeklyData, setWeeklyData] = useState<DayData[]>([]);
-  const [total_duration, setTotalDuration] = useState<number>(0);
+  const [weekOffset, setWeekOffset] = useState(0);
+
   useEffect(() => {
     loadHistory();
-  }, []);
-  
+  }, [weekOffset]);
+
   async function loadHistory() {
-    const date = new Date();
-    const endDate = date.toISOString().slice(0, 10);
-    date.setDate(date.getDate() - 6);
-    const startDate = date.toISOString().slice(0, 10);
-    
+    const base = new Date();
+    base.setDate(base.getDate() - weekOffset * 7);
+
+    const end = new Date(base);
+    const start = new Date(base);
+    start.setDate(end.getDate() - 6);
+
     const data = await window.electronAPI.getWeekSummary(
-      startDate,
-      endDate
+      start.toISOString().slice(0, 10),
+      end.toISOString().slice(0, 10)
     );
-    setTotalDuration( data.reduce((sum:any, day:any) => sum + day.total_sec, 0));
-   
 
     setWeeklyData(data);
   }
 
-  const maxHours =
-    Math.max(...weeklyData.map((d) => secToHours(d.total_sec)), 1);
+  const totalHours = weeklyData.reduce(
+    (acc, d) => acc + secToHours(d.total_sec),
+    0
+  );
+
+  const maxHours = Math.max(
+    ...weeklyData.map((d) => secToHours(d.total_sec)),
+    1
+  );
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
+    <div className="w-full px-8 py-6 space-y-8">
       {/* HEADER */}
-      <header className="flex items-center gap-4">
-        <button
-          onClick={() => setView("dashboard")}
-          className="p-2 hover:bg-slate-800 rounded-full"
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <h2 className="text-3xl font-bold text-white">
-          Weekly <span className="text-blue-500">Usage</span>
-        </h2>
-      </header>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => setView("dashboard")}
+            className="p-2 hover:bg-slate-800 rounded-full text-slate-400 transition-colors"
+          >
+            <ArrowLeft size={24} />
+          </button>
+          <div>
+            <h2 className="text-2xl font-bold text-white">Usage Statistics</h2>
+            <p className="text-slate-400 text-sm">Weekly breakdown</p>
+          </div>
+        </div>
 
-      {/* BAR CHART */}
-      <Card>
-        <div className="h-56 flex items-end justify-between gap-4 px-2">
+        <div className="flex bg-slate-800/60 p-1 rounded-lg border border-slate-700">
+          <button
+            onClick={() => setWeekOffset((w) => w + 1)}
+            className="p-2 hover:bg-slate-700 rounded-md transition-colors"
+          >
+            <ArrowLeft size={18} />
+          </button>
+
+          <div className="px-4 flex items-center text-xs text-slate-300 font-medium">
+            {weekOffset === 0 ? "This Week" : `${weekOffset} Weeks Ago`}
+          </div>
+
+          <button
+            onClick={() => setWeekOffset((w) => Math.max(w - 1, 0))}
+            disabled={weekOffset === 0}
+            className="p-2 hover:bg-slate-700 rounded-md disabled:opacity-30 transition-colors"
+          >
+            <ArrowRight size={18} />
+          </button>
+        </div>
+      </div>
+
+      {/* STATS */}
+      <div className="grid grid-cols-2 gap-4 max-w-lg">
+        <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+          <p className="text-xs text-slate-500 uppercase font-semibold">Total</p>
+          <p className="text-3xl font-bold text-blue-500">
+            {totalHours.toFixed(1)}h
+          </p>
+        </div>
+        <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+          <p className="text-xs text-slate-500 uppercase font-semibold">Daily Avg</p>
+          <p className="text-3xl font-bold text-white">
+            {(totalHours / 7).toFixed(1)}h
+          </p>
+        </div>
+      </div>
+
+      {/* CHART */}
+      <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl w-full">
+        <div className="h-64 flex items-end gap-4 w-full">
           {weeklyData.map((d) => {
             const hours = secToHours(d.total_sec);
             const height = (hours / maxHours) * 100;
 
             return (
-              <div
-                key={d.day}
-                className="flex flex-col items-center gap-2 w-full"
+              <div 
+                key={d.day} 
+                className="flex-1 flex flex-col items-center group cursor-pointer"
+                onClick={() => setView("detail")}
               >
-                <div className="text-[11px] text-slate-400">
+                <span className="mb-2 text-[11px] font-mono text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
                   {hours.toFixed(1)}h
-                </div>
+                </span>
 
-                <div className="relative w-full h-44 bg-slate-800 rounded-md overflow-hidden">
+                <div className="w-full h-48 bg-slate-800/50 rounded-lg overflow-hidden flex items-end border border-transparent group-hover:border-slate-700 transition-all">
                   <div
-                    className="absolute bottom-0 w-full bg-blue-500 rounded-md transition-all duration-500"
+                    className="w-full bg-blue-600 group-hover:bg-blue-500 transition-all duration-300"
                     style={{ height: `${height}%` }}
                   />
                 </div>
 
-                <div className="text-[11px] text-slate-500">
-                 {d.day.slice(5).replace("-", "/")}
-                  
-
-                </div>
+                <span className="mt-3 text-[11px] font-medium text-slate-500 group-hover:text-slate-300 transition-colors">
+                  {new Date(d.day).toLocaleDateString('en-US', { weekday: 'short' })}
+                </span>
               </div>
             );
           })}
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

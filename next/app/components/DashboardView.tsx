@@ -62,7 +62,18 @@ export default function DashboardView({ data, setView }: DashboardViewProps) {
         <Card className="p-5 border-slate-800 bg-slate-900/50 hover:border-blue-500/50 transition-colors">
           <Clock className="text-blue-400 mb-3" size={20} />
           <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Total Time</p>
-          <p className="text-2xl font-bold mt-1">{totalMinutes} <span className="text-sm font-normal text-slate-400">min</span></p>
+        <p className="text-2xl font-bold mt-1">
+  {(() => {
+    const hrs = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+
+    return hrs === 0
+      ? `${mins} mins`
+      : mins === 0
+      ? `${hrs} hr`
+      : `${hrs} hr ${mins} mins`;
+  })()}
+</p>
         </Card>
 
         <Card className="p-5 border-slate-800 bg-slate-900/50 hover:border-blue-500/50 transition-colors">
