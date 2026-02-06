@@ -18,22 +18,43 @@ if isinstance(payload, list):
     payload = {"type": "analyze", "rows": payload}
 
 from datetime import datetime
+from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import SystemMessage, HumanMessage
+
+
+def get_llm(provider, model, api_key):
+    if provider == "openai":
+        return ChatOpenAI(
+            model=model,
+            api_key=api_key,
+            temperature=0
+        )
+
+    if provider == "gemini":
+        return ChatGoogleGenerativeAI(
+            model=model,
+            google_api_key=api_key,
+            temperature=0
+        )
+
+    raise ValueError("Unsupported provider")
 
 def make_sql(**kwargs):
     user_query = (kwargs.get("user_query") or "").strip()
     user = kwargs.get("user", {})
-    api_key = user.get("api_key")
     messages = kwargs.get("messages", [])
     agent_name = user.get("agent_nickname", "WorkSight Assistant")
     username = user.get("username", "User")
 
+    provider = kwargs.get("provider")
+    model = kwargs.get("model")
+    api_key = kwargs.get("api_key")
     if not api_key:
         raise RuntimeError("Missing api_key")
 
-    client = OpenAI(
-        api_key=api_key,
-        base_url="https://generativelanguage.googleapis.com/v1beta/"
-    )
+
+    llm = get_llm(provider, model, api_key)
 
     date = datetime.now().strftime("%Y-%m-%d %H:%M:%S %A")
 
@@ -197,15 +218,13 @@ User request:
 
 """
 
-    response = client.chat.completions.create(
-        model="gemini-2.5-flash",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ]
-    )
 
-    text = response.choices[0].message.content.strip()
+    response = llm.invoke([
+        SystemMessage(content=system_prompt),
+        HumanMessage(content=user_prompt)
+    ])
+
+    text = response.content.strip()
 
     try:
         result = json.loads(text)
@@ -227,15 +246,20 @@ def analyze(**kwargs):
     rows = kwargs.get("rows", [])
     user = kwargs.get("user", {})
     user_query = kwargs.get("user_query", "")
-    api_key = user.get("api_key")
+   
     final_goal = user.get("final_goal", "")
     user_system_prompt = user.get("system_prompt", "")
     messages = kwargs.get("messages", [])
 
-    client = OpenAI(
-        api_key = api_key,
-        base_url="https://generativelanguage.googleapis.com/v1beta/"
-    )
+    provider = kwargs.get("provider")
+    model = kwargs.get("model")
+    api_key = kwargs.get("api_key")
+    if not api_key:
+        raise RuntimeError("Missing api_key")
+
+
+    llm = get_llm(provider, model, api_key)
+
     system_prompt = """
     You are an expert data analyst. Given tabular data, provide insights, trends, and summaries in natural language.
     Always relate insights to the user's goal if provided.
@@ -262,14 +286,14 @@ not like this: **`ChatGPT` for 'SQL Generation Tips'**,
 
     """
 
-    response = client.chat.completions.create(
-        model="gemini-2.5-flash",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ] + messages
-    )
-    analysis = response.choices[0].message.content.strip()
+    
+    response = llm.invoke([
+        SystemMessage(content=system_prompt),
+        HumanMessage(content=user_prompt)
+    ])
+
+    analysis = response.content.strip()
+   
     return analysis
 
 

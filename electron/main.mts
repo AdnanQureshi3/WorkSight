@@ -8,7 +8,11 @@ import { exec } from "child_process";
 
 import { getDayAppUsage,
    updateUserProfile, getUserProfile, runSafeSQL, 
-   getWeekSummary} from "./db.js"; 
+   getWeekSummary,
+   saveApiKeyForModel,
+   db,
+   ensureLLMKeys,
+   getApiKeyForModel} from "./db.js"; 
 
 
    import { runPythonAI } from "./pythonRunner.js";
@@ -114,55 +118,118 @@ ipcMain.handle("get-week-summary", (event, startDate: string, endDate: string) =
   return data;
 });
 
-// AI NATURAL-LANGUAGE → SQL → ANALYZE PIPELINE
+function classifyApiError(err: any): string {
+  const msg = String(err).toLowerCase();
 
-ipcMain.handle("ai-query", async (event, messages: any[]) => {
-  let user = getUserProfile();
-  console.log("user is :", user);
+  if (msg.includes("invalid api key") || msg.includes("api key not valid"))
+    return "Your API key is invalid. Please check and update it.";
 
-  const user_query = messages[messages.length - 1].content;
-  console.log("AI Query received:", user_query); 
+  if (msg.includes("quota") || msg.includes("rate limit") || msg.includes("resource_exhausted"))
+    return "Your API usage limit has been reached. Please try again later or upgrade your plan.";
 
-  // 1) Ask Python to generate a SQL query from the natural language prompt
-  let gen;
-  try {
-    gen = await runPythonAI({ type: "generate_sql", messages , user_query, user });
-  } catch (err: any) {
-    console.error("AI generation error:", err);
-    return { status: "error", error: "AI generation failed", detail: String(err) };
+  if (msg.includes("not_found") || msg.includes("model"))
+    return "This model is not available for your API key.";
+
+  return "Something went wrong while contacting the AI service.";
+}
+
+
+ipcMain.handle(
+  "ai-query",
+  async (event, messages: any[], model: string, provider: string) => {
+    const user = getUserProfile();
+    const user_query = messages[messages.length - 1]?.content ?? "";
+    const api_key = getApiKeyForModel(provider);
+
+    if (!api_key)
+      return {
+        status: "ok",
+        sql: "",
+        analysis: {
+          analysis: `No API key found for ${provider}. Please add it in Profile → LLM Settings.`
+        }
+      };
+
+    let gen, sql = "", analysis = { analysis: "" };
+
+    // ---- SQL generation
+    try {
+      gen = await runPythonAI({
+        type: "generate_sql",
+        messages, user_query, user,
+        model, provider, api_key
+      });
+    } catch (err) {
+      console.error("SQL generation error:", err);
+      return {
+        status: "ok",
+        sql: "",
+        analysis: {
+          analysis: classifyApiError(err)
+        }
+      };
+    }
+
+    if (!gen || gen.status !== "ok")
+      return {
+        status: "ok",
+        sql: "",
+        analysis: {
+          analysis: "I couldn’t figure out what data you’re looking for."
+        }
+      };
+
+    if (gen.sql_generated === "no")
+      return {
+        status: "ok",
+        sql: "",
+        analysis: { analysis: gen.reply || "" }
+      };
+
+    // ---- SQL execution + analysis
+    try {
+      sql = gen.sql;
+      console.log("Generated SQL:", sql);
+      const rows = runSafeSQL(sql);
+
+      try {
+        analysis = await runPythonAI({
+          type: "analyze",
+          messages, rows, user, user_query,
+          model, provider, api_key
+        });
+      } catch (err) {
+        console.error("Analysis error:", err);
+        analysis = {
+          analysis: classifyApiError(err)
+        };
+      }
+    } catch (err) {
+      console.error("Database error:", err);
+      return {
+        status: "ok",
+        sql,
+        analysis: {
+          analysis: classifyApiError(err)
+        }
+      };
+    }
+
+    return { status: "ok", sql, analysis };
   }
+);
 
-  if (!gen || gen.status !== "ok" ) {
-    return { status: "error", error: "AI failed to generate a SQL query", detail: gen };
-  }
-  
-  if(gen.sql_generated === "no"){
-    return { status: "ok", sql: "", analysis: { analysis: gen.reply } };
-  }
 
-  // 2) Run the SQL safely on the local DB
-  console.log("Generated SQL:", gen.sql);
-  let rows;
-  try {
-    rows = runSafeSQL(gen.sql);
-  }
-  catch (err: any) {
-    console.error("SQL execution error:", err.message);
-    return { status: "error", error: "SQL execution failed", detail: err.message, sql: gen.sql };
-  }
-
-  // 3) Send results back to the AI for analysis / natural language summary
-
-;
-
-  let analysis;
-  try {
-    analysis = await runPythonAI({ type: "analyze", messages,rows,user, user_query });
-  } catch (err: any) {
-    console.error("AI analysis error:", err);
-    analysis = { status: "error", error: String(err) };
-  }
-
-  // 4) Return to the UI
-  return { status: "ok", sql: gen.sql,  analysis };
+ipcMain.handle("save-api-key-for-model", (event, provider: string, model: string, apiKey: string) => { 
+  console.log(`Saving API key for model ${model} from provider ${provider}`);
+  saveApiKeyForModel(provider, model, apiKey);
 });
+
+ipcMain.handle("get-model-supported", (event) => { 
+  ensureLLMKeys();
+  console.log("Getting supported models");
+  const stmt = db.prepare("SELECT provider, model, api_key FROM llm_api_keys");
+  const rows = stmt.all();
+  return rows;
+}
+);
