@@ -12,12 +12,15 @@ export interface IElectronAPI {
   getWeekSummary: (startDate: string, endDate: string) => Promise<any>;
   
 
-  aiQuery: (messages: any[]) => Promise<any>;
+  aiQuery: (messages: any[] , model: string, provider: string) => Promise<any>;
 
 
   // getChat: () => Promise<Message[]>;
   // setChat: (msgs: Message[]) => Promise<void>;
   // clearChat: () => Promise<void>;
+
+  saveApiKeyForModel: (provider: string, model: string, apiKey: string) => Promise<void>;
+  getModelSupported: () => Promise<{provider: string, model: string}[]>;
 }
 
 declare global {

@@ -29,8 +29,8 @@ export default function HistoryView({
     start.setDate(end.getDate() - 6);
 
     const data = await window.electronAPI.getWeekSummary(
-      start.toISOString().slice(0, 10),
-      end.toISOString().slice(0, 10)
+      start.toLocaleDateString("en-CA"),
+      end.toLocaleDateString("en-CA")
     );
 
     setWeeklyData(data);

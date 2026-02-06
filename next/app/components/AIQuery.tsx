@@ -1,82 +1,100 @@
 "use client";
 
-import next from "next";
 import React, { useState, useRef, useEffect } from "react";
 
 type Message = {
   role: "user" | "assistant";
   content: string;
 };
+
 const STORAGE_KEY = "worksight_ai_chat";
 
-function loadFromSession() {
+/* -------- MODELS CONFIG (UI ONLY) -------- */
+const MODELS = [
+  { label: "GPT-4.1 Mini", value: "gpt-4.1-mini", provider: "openai" },
+  { label: "GPT-4o Mini", value: "gpt-4o-mini", provider: "openai" },
+  { label: "Gemini 2.5 Flash", value: "gemini-2.5-flash", provider: "gemini" },
+  { label: "Gemini 2.5 Pro", value: "gemini-2.5-pro", provider: "gemini" },
+];
+
+const MODEL_PROVIDER = Object.fromEntries(
+  MODELS.map((m) => [m.value, m.provider])
+);
+
+function loadFromSession(): Message[] {
   if (typeof window === "undefined") return [];
   const raw = sessionStorage.getItem(STORAGE_KEY);
   return raw ? JSON.parse(raw) : [];
 }
 
-function saveToSession(messages: any[]) {
+function saveToSession(messages: Message[]) {
   sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
 }
 
 export default function AIQuery() {
-
   const [messages, setMessages] = useState<Message[]>(loadFromSession);
-
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+
+  const [model, setModel] = useState<string>("gemini-2.5-flash");
 
   const [username, setUsername] = useState("");
   const [agentNickname, setAgentNickname] = useState("");
 
+  const bottomRef = useRef<HTMLDivElement>(null);
 
-  // 🔥 Persist chat to Electron main memory whenever it changes
+  /* -------- LOAD PROFILE -------- */
   useEffect(() => {
     window.electronAPI.getUserProfile().then((data) => {
       setUsername(data.username || "");
       setAgentNickname(data.agent_nickname || "");
-
     });
-    
   }, []);
 
-  // auto scroll
+  /* -------- AUTOSCROLL -------- */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-
   }, [messages, loading]);
 
+  /* -------- PERSIST CHAT -------- */
   useEffect(() => {
-  saveToSession(messages);
-}, [messages]);
-
+    saveToSession(messages);
+  }, [messages]);
 
   async function run() {
     if (!prompt.trim()) return;
 
     const userMessage: Message = { role: "user", content: prompt };
     const nextMessages = [...messages, userMessage];
-    setMessages((prev) => [...prev, userMessage]);
+
+    setMessages(nextMessages);
     setPrompt("");
     setLoading(true);
 
     try {
-      console.log("Sending messages to Electron main for AI processing:", nextMessages);
-      const res = await window.electronAPI.aiQuery(nextMessages);
+      const provider = MODEL_PROVIDER[model];
 
-      const aiText =
-        res?.analysis?.analysis ||
-        "Sorry, I couldn't understand that. Try asking in a different way.";
+      const res = await window.electronAPI.aiQuery(
+        nextMessages,
+        model,
+        provider
+      );
 
-      const aiMessage: Message = { role: "assistant", content: aiText };
-      setMessages((prev) => [...prev, aiMessage]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            res?.analysis?.analysis ||
+            "I couldn’t understand that. Try asking differently.",
+        },
+      ]);
     } catch {
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: "⚠️ Something went wrong. Please try again.",
+          content: "The AI service is currently unavailable.",
         },
       ]);
     } finally {
@@ -85,97 +103,54 @@ export default function AIQuery() {
   }
 
   return (
-      <div className="flex flex-col h-full bg-slate-900 rounded-xl shadow-lg">
-
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-slate-700 text-slate-200 font-semibold flex justify-between">
+    <div className="flex flex-col h-full bg-slate-900 rounded-xl shadow-lg">
+      {/* HEADER */}
+      <div className="px-4 py-3 border-b border-slate-700 flex justify-between text-slate-200 font-semibold">
         <span>Ask anything about your activity</span>
-
-        {/* 🧹 New Chat */}
-      <button
-        onClick={async () => {
-         sessionStorage.removeItem(STORAGE_KEY);
-  setMessages([]);
-        }}
-        className="px-3 py-1 rounded bg-slate-800 cursor-pointer hover:text-red-500 hover:bg-slate-700 text-s text-slate-200"
-      >
-        <span className="text-xl ">
-🧹
-        </span>
-         Start new chat
-      </button>
-
-
+        <button
+          onClick={() => {
+            sessionStorage.removeItem(STORAGE_KEY);
+            setMessages([]);
+          }}
+          className="px-3 py-1 rounded bg-slate-800 hover:text-red-500 hover:bg-slate-700 text-sm"
+        >
+          🧹 New chat
+        </button>
       </div>
 
-      {/* Chat area */}
+      {/* CHAT AREA */}
       <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
-
         {messages.length === 0 && !loading && (
-  <div className="h-full flex flex-col items-center justify-center text-center px-6">
-    {/* Hero */}
-    <div className="mb-6 flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-600/10 ring-1 ring-emerald-500/20">
-      <span className="text-3xl">🧠</span>
-    </div>
-
-    <h1 className="text-2xl font-bold text-slate-100 mb-1">
-      Hi {username || "there"}
-    </h1>
-    <p className="text-slate-400 mb-6 max-w-md">
-      I’m your AI assistant{agentNickname && `, ${agentNickname}`}.  
-      Ask me anything about how you spend your time.
-    </p>
-
-    {/* Prompt cards */}
-    <div className="grid gap-3 w-full max-w-xl">
-      {[
-        {
-          title: "Top apps",
-          text: "Show my most used apps this week",
-        },
-        {
-          title: "Focus time",
-          text: "How much time did I spend coding?",
-        },
-        {
-          title: "Daily pattern",
-          text: "Show my daily activity pattern",
-        },
-        {
-          title: "Productivity insight",
-          text: "Give me a productivity summary",
-        },
-      ].map((item, i) => (
-        <button
-          key={i}
-          onClick={() => setPrompt(item.text)}
-          className="group text-left p-4 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/40 transition"
-        >
-          <div className="flex  items-center justify-between">
-            <div className="flex-row  justify-between px-8 cursor-pointer w-full flex">
-              <p className="text-sm font-semibold text-slate-200">
-                {item.title}
-              </p>
-              <p className="text-xs text-slate-400 mt-1">
-                {item.text}
-              </p>
+          <div className="h-full flex flex-col items-center justify-center text-center px-6">
+            <div className="mb-4 w-16 h-16 rounded-2xl bg-emerald-600/10 ring-1 ring-emerald-500/20 flex items-center justify-center">
+              <span className="text-3xl">🧠</span>
             </div>
-            <span className="opacity-0 group-hover:opacity-100 transition text-emerald-400">
-              ↵
-            </span>
-          </div>
-        </button>
-      ))}
-    </div>
 
-    {/* Footer hint */}
-    <p className="mt-6 text-xs text-slate-500">
-      Press <kbd className="px-1 rounded bg-slate-800 border border-slate-700">Enter</kbd>{" "}
-      to send • <kbd className="px-1 rounded bg-slate-800 border border-slate-700">Shift</kbd>
-      +Enter for new line
-    </p>
-  </div>
-)}
+            <h1 className="text-2xl font-bold text-slate-100">
+              Hi {username || "there"}
+            </h1>
+            <p className="text-slate-400 mb-6">
+              I’m your AI assistant{agentNickname && `, ${agentNickname}`}.
+            </p>
+
+            <div className="grid gap-3 w-full max-w-xl">
+              {[
+                "Show my most used apps this week",
+                "How much time did I spend coding?",
+                "Show my daily activity pattern",
+                "Give me a productivity summary",
+              ].map((q, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPrompt(q)}
+                  className="text-left p-4 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 transition"
+                >
+                  <p className="text-sm font-semibold text-slate-200">{q}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {messages.map((msg, i) => (
           <div
@@ -185,8 +160,7 @@ export default function AIQuery() {
             }`}
           >
             <div
-              className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap
-              ${
+              className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm whitespace-pre-wrap ${
                 msg.role === "user"
                   ? "bg-emerald-600 text-white rounded-br-sm"
                   : "bg-slate-800 text-slate-200 rounded-bl-sm"
@@ -198,9 +172,9 @@ export default function AIQuery() {
         ))}
 
         {loading && (
-          <div className="flex justify-start">
+          <div className="flex">
             <div className="bg-slate-800 px-4 py-2 rounded-2xl text-sm text-slate-400 animate-pulse">
-              Thinking...
+              Thinking…
             </div>
           </div>
         )}
@@ -208,9 +182,26 @@ export default function AIQuery() {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      
-      <div className="p-3 border-t border-slate-700 bg-slate-800 flex gap-2">
+      {/* INPUT BAR */}
+      <div className="p-3 border-t border-slate-700 bg-slate-800 flex gap-3 items-end">
+        {/* MODEL SELECT */}
+        <select
+          value={model}
+          onChange={(e) => setModel(e.target.value)}
+          className="bg-slate-900 text-slate-200 text-xs px-3 py-2 rounded-lg border border-slate-700 focus:ring-1 focus:ring-emerald-500"
+        >
+          {["openai", "gemini"].map((provider) => (
+            <optgroup key={provider} label={provider.toUpperCase()}>
+              {MODELS.filter((m) => m.provider === provider).map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+
+        {/* PROMPT */}
         <textarea
           rows={1}
           value={prompt}
@@ -221,13 +212,15 @@ export default function AIQuery() {
               run();
             }
           }}
-          placeholder="Ask like: Show me last month's top apps by usage..."
-          className="flex-1 resize-none bg-slate-900 text-sm p-3 rounded-lg outline-none text-slate-200"
+          placeholder="Ask about your time, apps, productivity…"
+          className="flex-1 resize-none bg-slate-900 text-sm p-3 rounded-lg outline-none text-slate-200 border border-slate-700 focus:ring-1 focus:ring-emerald-500"
         />
+
+        {/* SEND */}
         <button
           onClick={run}
           disabled={loading || !prompt.trim()}
-          className="px-4 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-sm"
+          className="px-5 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-sm font-medium"
         >
           Send
         </button>

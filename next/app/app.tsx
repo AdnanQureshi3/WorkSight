@@ -19,11 +19,13 @@ export default function App() {
 
   // 🔹 FETCH ONCE
   useEffect(() => {
-    const today = new Date().toISOString().slice(0, 10);
-    // console.log("Fetching app usage for date:", today);
-    // const today = "2026-02-02"
-    // const today = new Date().toLocaleDateString('en-CA').slice(0, 10);
-    window.electronAPI.getDayAppUsage(today).then(setDayAppUsage);
+
+    const localtoday = new Date().toLocaleDateString("en-CA");
+
+    console.log( localtoday);
+
+   
+    window.electronAPI.getDayAppUsage(localtoday).then(setDayAppUsage);
     console.log("Fetched app usage data:", dayAppUsage);
   }, [refresh]);
 
