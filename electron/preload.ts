@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { getWeekSummary } from "./db";
+import { getWeekSummary, saveApiKeyForModel } from "./db";
 
 console.log("preload: exposing electronAPI (includes aiQuery if present)");
 
@@ -32,11 +32,15 @@ contextBridge.exposeInMainWorld("electronAPI", {
   
 
   // -------- AI QUERY (natural language → SQL → analyze) --------
-  aiQuery: (messages: any[]) => ipcRenderer.invoke("ai-query", messages),
+  aiQuery: (messages: any[], model: string, provider: string) => ipcRenderer.invoke("ai-query", messages, model, provider),
 
 
 
-  // -------- GOALS --------
+  // -------- LLMs --------
+  saveApiKeyForModel: (provider: string, model: string, apiKey: string) => 
+    ipcRenderer.invoke("save-api-key-for-model", provider, model, apiKey),
+  getModelSupported: () =>
+    ipcRenderer.invoke("get-model-supported"),
 
   
 });

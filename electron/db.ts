@@ -220,4 +220,38 @@ export function getuserGoal(){
   return { finalGoal: row.final_goal, apiKey: row.api_key };
 }
 
-console.log("weekly summary, ",getWeekSummary("2026-01-30", "2026-02-05"))
+export function ensureLLMKeys() {
+  db.prepare(`
+    CREATE TABLE IF NOT EXISTS llm_api_keys (
+      provider TEXT,
+      model TEXT PRIMARY KEY,
+      api_key TEXT NOT NULL
+    )
+  `).run();
+
+   const stmt = db.prepare(`
+    INSERT OR IGNORE INTO llm_api_keys (provider, model, api_key)
+    VALUES (?, ?, '')
+  `);
+
+  stmt.run("openai", "gpt-4.5-turbo");
+  stmt.run("gemini", "gemini-2.5-flash");
+}
+export function saveApiKeyForModel(provider: string, model: string, apiKey: string) {
+  ensureLLMKeys();
+
+  db.prepare(`
+    INSERT OR REPLACE INTO llm_api_keys (provider, model, api_key)
+    VALUES (?, ?, ?)
+  `).run(provider, model, apiKey);
+
+
+}
+export function getApiKeyForModel(provider: string) {
+  ensureLLMKeys();
+
+  const row = db.prepare(
+    "SELECT api_key FROM llm_api_keys WHERE provider = ?"
+  ).get(provider);
+  return row?.api_key || null;
+}
