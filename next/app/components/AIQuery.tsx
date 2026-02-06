@@ -151,8 +151,8 @@ export default function AIQuery() {
           onClick={() => setPrompt(item.text)}
           className="group text-left p-4 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/40 transition"
         >
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex  items-center justify-between">
+            <div className="flex-row  justify-between px-8 cursor-pointer w-full flex">
               <p className="text-sm font-semibold text-slate-200">
                 {item.title}
               </p>
@@ -209,6 +209,7 @@ export default function AIQuery() {
       </div>
 
       {/* Input */}
+      
       <div className="p-3 border-t border-slate-700 bg-slate-800 flex gap-2">
         <textarea
           rows={1}

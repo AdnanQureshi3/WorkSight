@@ -27,6 +27,12 @@ export default function DashboardView({ data, setView }: DashboardViewProps) {
     () => Math.round(data.reduce((s, d) => s + d.total_sec, 0) / 60),
     [data]
   );
+  const unitConversion = (minutes: number) => {
+    if (minutes < 60) return `${minutes} min`;
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins === 0 ? `${hrs} hr` : `${hrs} hr ${mins} min`;
+  }
 
   const topApp = useMemo(
     () => [...data].sort((a, b) => b.total_sec - a.total_sec)[0],
@@ -63,17 +69,8 @@ export default function DashboardView({ data, setView }: DashboardViewProps) {
           <Clock className="text-blue-400 mb-3" size={20} />
           <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Total Time</p>
         <p className="text-2xl font-bold mt-1">
-  {(() => {
-    const hrs = Math.floor(totalMinutes / 60);
-    const mins = totalMinutes % 60;
-
-    return hrs === 0
-      ? `${mins} mins`
-      : mins === 0
-      ? `${hrs} hr`
-      : `${hrs} hr ${mins} mins`;
-  })()}
-</p>
+          {unitConversion(totalMinutes)}
+        </p>
         </Card>
 
         <Card className="p-5 border-slate-800 bg-slate-900/50 hover:border-blue-500/50 transition-colors">

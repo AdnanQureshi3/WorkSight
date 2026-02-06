@@ -9,6 +9,12 @@ type DetailViewProps = {
 
 export default function DetailView({ data, setView }: DetailViewProps) {
   const maxSec = Math.max(...data.map(d => d.total_sec));
+  const unitConversion = (minutes: number) => {
+    if (minutes < 60) return `${minutes} min`;
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins === 0 ? `${hrs} hr` : `${hrs} hr ${mins} min`;
+  };
 
   return (
     <div className="space-y-12 animate-in zoom-in-95 duration-500">
@@ -39,13 +45,11 @@ export default function DetailView({ data, setView }: DetailViewProps) {
                   <p className="text-lg font-semibold text-white">
                     {log.app_name.split(".")[0]}
                   </p>
-                  <p className="text-[11px] uppercase tracking-wider text-slate-500">
-                    Active Window
-                  </p>
+                 
                 </div>
 
                 <p className="text-sm font-mono text-slate-300">
-                  {Math.round(log.total_sec / 60)} min
+                  {unitConversion(Math.round(log.total_sec / 60))}
                 </p>
               </div>
 

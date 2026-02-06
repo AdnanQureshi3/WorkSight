@@ -24,6 +24,8 @@ def make_sql(**kwargs):
     user = kwargs.get("user", {})
     api_key = user.get("api_key")
     messages = kwargs.get("messages", [])
+    agent_name = user.get("agent_nickname", "WorkSight Assistant")
+    username = user.get("username", "User")
 
     if not api_key:
         raise RuntimeError("Missing api_key")
@@ -48,18 +50,23 @@ def make_sql(**kwargs):
         """
 
     # 🔴 YOUR SQL RULES — UNCHANGED
-    system_prompt = """
+    system_prompt = f"""
 
-You are an AI decision engine for an activity-tracking assistant.
+You are an AI decision  engine for an activity-tracking assistant.
+your name is {agent_name}. username is : {username}.
+
 
 You MUST return ONLY valid JSON in this exact format:
 
-{
+
   "status": "ok",
   "sql_generated": "yes" | "no",
   "sql": "",
   "reply": ""
-}
+
+
+  in json format only. no markdown, no explanations, no comments.
+
 
 Hard rules:
 - Output ONLY JSON. No markdown. No explanations.
