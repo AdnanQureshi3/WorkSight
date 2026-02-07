@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, protocol } from "electron";
 import path from "path";
 import { spawn } from "child_process";
 import Database from "better-sqlite3";
@@ -6,25 +6,30 @@ import { fileURLToPath } from "url";
 
 import { exec } from "child_process";
 
-import { getDayAppUsage,
-   updateUserProfile, getUserProfile, runSafeSQL, 
-   getWeekSummary,
-   saveApiKeyForModel,
-   db,
-   ensureLLMKeys,
-   getApiKeyForModel} from "./db.js"; 
+import { getDayAppUsage,updateUserProfile, getUserProfile, runSafeSQL, getWeekSummary,
+   saveApiKeyForModel,db,ensureLLMKeys, getApiKeyForModel} from "./db.js"; 
+
+import { runPythonAI } from "./pythonRunner.js";
 
 
-   import { runPythonAI } from "./pythonRunner.js";
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: "app",
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true
+    }
+  }
+]);
+
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+
 let win: BrowserWindow;
 let trackerProcess: any = null;
-// const trackerExe = path.join(
-//   process.resourcesPath,
-//   "worksight-tracker.exe"
-// );
 
 const trackerExe = app.isPackaged
   ? path.join(process.resourcesPath, "worksight-tracker.exe")
@@ -36,6 +41,18 @@ app.setLoginItemSettings({
 });
 
 app.whenReady().then(() => {
+
+
+protocol.registerFileProtocol("app", (request, callback) => {
+  const url = request.url.replace("app://", "");
+  const basePath = app.isPackaged
+    ? path.join(process.resourcesPath, "app.asar.unpacked/next/out")
+    : path.join(__dirname, "../../next/out");
+
+  const filePath = path.join(basePath, url || "index.html");
+  callback({ path: filePath });
+});
+
   win = new BrowserWindow({
     width: 1000,
     height: 700,
@@ -44,7 +61,13 @@ app.whenReady().then(() => {
     },
   });
 
+  if (app.isPackaged) {
+  // win.loadURL("app://index.html");
+  win.loadURL("app:///");
+
+} else {
   win.loadURL("http://localhost:3000");
+}
   if(!trackerProcess){
     trackerProcess = exec(`"${trackerExe}"`);
 
