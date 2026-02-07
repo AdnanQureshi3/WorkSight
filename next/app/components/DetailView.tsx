@@ -17,7 +17,7 @@ export default function DetailView({ data, setView }: DetailViewProps) {
   };
 
   return (
-    <div className="space-y-12 animate-in zoom-in-95 duration-500">
+    <div className="space-y-12  animate-in zoom-in-95 duration-500">
       <header className="flex items-center gap-4">
         <button
           onClick={() => setView("dashboard")}

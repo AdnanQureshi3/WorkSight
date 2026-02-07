@@ -50,7 +50,7 @@ export default function DashboardView({ data, setView }: DashboardViewProps) {
 
 
   return (
-    <div className="max-w-4xl mb-10 mx-auto space-y-8 p-6 text-slate-100">
+    <div className="max-w-4xl mx-auto space-y-8 p-6 text-slate-100">
       <header className="flex justify-between items-end">
         <div>
           <h2 className="text-4xl font-extrabold tracking-tight">

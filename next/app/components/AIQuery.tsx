@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-
+import {Copy } from "lucide-react";
 type Message = {
   role: "user" | "assistant";
   content: string;
@@ -35,13 +35,16 @@ export default function AIQuery() {
   const [messages, setMessages] = useState<Message[]>(loadFromSession);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [model, setModel] = useState<string>("gemini-2.5-flash");
-
   const [username, setUsername] = useState("");
   const [agentNickname, setAgentNickname] = useState("");
 
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  /* -------- COPY HELPER -------- */
+  function copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text);
+  }
 
   /* -------- LOAD PROFILE -------- */
   useEffect(() => {
@@ -155,18 +158,31 @@ export default function AIQuery() {
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`flex ${
+            className={`group flex ${
               msg.role === "user" ? "justify-end" : "justify-start"
             }`}
           >
-            <div
-              className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm whitespace-pre-wrap ${
-                msg.role === "user"
-                  ? "bg-emerald-600 text-white rounded-br-sm"
-                  : "bg-slate-800 text-slate-200 rounded-bl-sm"
-              }`}
-            >
-              {msg.content}
+            <div className="relative max-w-[75%]">
+              <div
+                className={`px-4 py-2 rounded-2xl text-sm whitespace-pre-wrap ${
+                  msg.role === "user"
+                    ? "bg-emerald-600 text-white rounded-br-sm"
+                    : "bg-slate-800 text-slate-200 rounded-bl-sm"
+                }`}
+              >
+                {msg.content}
+              </div>
+
+              {/* COPY BUTTON */}
+              <button
+                onClick={() => copyToClipboard(msg.content)}
+                className={`absolute -top-2 ${
+                  msg.role === "user" ? "-left-10" : "-right-10"
+                } opacity-0 cursor-pointer group-hover:opacity-100 transition text-xs px-2 py-1 rounded bg-slate-700 text-slate-200 hover:bg-slate-600`}
+              >
+                <Copy size={12} className="inline mr-1" />
+            
+              </button>
             </div>
           </div>
         ))}
@@ -184,7 +200,6 @@ export default function AIQuery() {
 
       {/* INPUT BAR */}
       <div className="p-3 border-t border-slate-700 bg-slate-800 flex gap-3 items-end">
-        {/* MODEL SELECT */}
         <select
           value={model}
           onChange={(e) => setModel(e.target.value)}
@@ -201,7 +216,6 @@ export default function AIQuery() {
           ))}
         </select>
 
-        {/* PROMPT */}
         <textarea
           rows={1}
           value={prompt}
@@ -216,7 +230,6 @@ export default function AIQuery() {
           className="flex-1 resize-none bg-slate-900 text-sm p-3 rounded-lg outline-none text-slate-200 border border-slate-700 focus:ring-1 focus:ring-emerald-500"
         />
 
-        {/* SEND */}
         <button
           onClick={run}
           disabled={loading || !prompt.trim()}

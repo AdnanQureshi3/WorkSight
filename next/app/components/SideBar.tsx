@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { LayoutDashboard, Target, History, User,Bot } from "lucide-react";
+import { LayoutDashboard, Target, History, User,Bot, Settings , Settings2 } from "lucide-react";
 import { SideBarProps } from "../../types/types";
 
 function SideBar({ setRefresh, view, setView }: SideBarProps) {
@@ -81,13 +81,13 @@ function SideBar({ setRefresh, view, setView }: SideBarProps) {
 
       </div> */}
 
-      {/* Profile */}
       <div
         className="flex items-center px-6 py-4 text-slate-400 cursor-pointer hover:text-white"
         onClick={() => setView("profile")}
       >
-        <User className="w-6 h-6 mr-3" />
-        <span className="text-sm font-medium">Profile</span>
+        <Settings className="w-6 h-6 mr-3" />
+
+        <span className="text-sm font-medium">Settings / Profile</span>
       </div>
     </div>
   );

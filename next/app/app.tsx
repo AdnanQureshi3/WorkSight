@@ -17,46 +17,48 @@ export default function App() {
   const [dayAppUsage, setDayAppUsage] = useState<any[]>([]);
   const [refresh, setRefresh] = useState<boolean>(false);
 
-  // 🔹 FETCH ONCE
   useEffect(() => {
-
     const localtoday = new Date().toLocaleDateString("en-CA");
-
-    console.log( localtoday);
-
-   
-    window.electronAPI.getDayAppUsage(localtoday).then(setDayAppUsage);
-    console.log("Fetched app usage data:", dayAppUsage);
+    window.electronAPI.getDayAppUsage(localtoday).then((data) => {
+      setDayAppUsage(data);
+    });
   }, [refresh]);
 
- return (
-  <div className="flex h-screen overflow-hidden bg-[#0c1021] text-slate-200">
-    <SideBar setRefresh={setRefresh} view={view} setView={setView} />
+  return (
+    <div className="flex h-screen overflow-hidden bg-[#0c1021] text-slate-200">
+      <SideBar setRefresh={setRefresh} view={view} setView={setView} />
 
-    <main className="ml-64 flex-1 p-8 overflow-hidden">
-      {view === "dashboard" && (
-        <div className="h-screen overflow-y-auto">
-        <DashboardView data={dayAppUsage} setView={setView} />
-</div>
-      )}
+      <main className="ml-64 flex-1 p-8 overflow-hidden">
+        {view === "dashboard" && (
+          <div className="h-full overflow-y-auto">
+            <DashboardView data={dayAppUsage} setView={setView} />
+          </div>
+        )}
 
-      {view === "detail" && (
-        <div className="h-screen overflow-y-auto">
+        {view === "detail" && (
+          <div className="h-full overflow-y-auto">
+            <DetailView data={dayAppUsage} setView={setView} />
+          </div>
+        )}
 
-        <DetailView data={dayAppUsage} setView={setView} />
-        </div>
-      )}
+        {view === "ai" && (
+          <div className="h-full overflow-y-auto">
+            <AIQuery />
+          </div>
+        )}
 
-      {view === "ai" && (
-        <div className="h-full">
-          <AIQuery />
-        </div>
-      )}
+        {view === "history" && (
+          <div className="h-full overflow-y-auto">
+            <HistoryView setView={setView} />
+          </div>
+        )}
 
-      {view === "history" && <HistoryView setView={setView} />}
-      {view === "profile" && <Profile setView={setView} />}
-    </main>
-  </div>
-);
-
+        {view === "profile" && (
+          <div className="h-full overflow-y-auto">
+            <Profile setView={setView} />
+          </div>
+        )}
+      </main>
+    </div>
+  );
 }
