@@ -1,4 +1,4 @@
-import { Card } from "./Card";
+import { Card } from "./Card.js";
 import { useState, useMemo } from "react";
 import {
   Brain,

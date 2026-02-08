@@ -7,7 +7,7 @@ import {
   Save
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import LLM from "./LLM";
+import LLM from "./LLM.js";
 
 type ProfileProps = {
   setView: (v: "dashboard" | "history" | "detail" | "profile") => void;

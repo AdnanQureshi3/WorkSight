@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { LayoutDashboard, Target, History, User,Bot, Settings , Settings2 } from "lucide-react";
-import { SideBarProps } from "../../types/types";
+import { LayoutDashboard, Target, History, User,Bot, Settings } from "lucide-react";
+import type{ SideBarProps } from "../types/types";
 
 function SideBar({ setRefresh, view, setView }: SideBarProps) {
   const [isTracking, setIsTracking] = useState(false);
