@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "electron/dist/main.mjs",
   "scripts": {
-    "dev:next": "cd next && npm run dev",
+    "dev:ui": "cd ui && npm run dev",
     "build:electron": "tsc -p electron",
     "dev:electron": "npm run build:electron && electron electron/dist/main.mjs",
     "build": "npm run build:electron && electron-builder"
