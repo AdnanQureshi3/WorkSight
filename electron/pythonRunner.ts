@@ -1,11 +1,14 @@
 import { spawn } from "child_process";
+import path from "path";
+import { app } from "electron";
 
 export function runPythonAI(payload: any) {
-    // console.log("Running Python AI with payload:", payload);
-    
   return new Promise<any>((resolve, reject) => {
-    const py = spawn("python/venv/Scripts/python.exe", ["python/ai_worker.py"]);
+    const aiExe = app.isPackaged
+      ? path.join(process.resourcesPath, "ai-worker.exe")
+      : path.join(__dirname, "../../python/dist/ai-worker.exe");
 
+    const py = spawn(aiExe, [], { windowsHide: true });
 
     let output = "";
     let error = "";
@@ -18,7 +21,7 @@ export function runPythonAI(payload: any) {
       try {
         resolve(JSON.parse(output));
       } catch (e) {
-        reject(new Error("Invalid JSON returned from python: " + output));
+        reject(new Error("Invalid JSON returned from AI exe: " + output));
       }
     });
 

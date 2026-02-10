@@ -32,11 +32,16 @@
       "node_modules/**/*"
     ],
     "extraResources": [
-      {
-        "from": "electron/resources/worksight-tracker.exe",
-        "to": "worksight-tracker.exe"
-      }
-    ],
+  {
+    "from": "electron/resources/worksight-tracker.exe",
+    "to": "worksight-tracker.exe"
+  },
+  {
+    "from": "electron/resources/ai-worker.exe",
+    "to": "ai-worker.exe"
+  }
+]
+,
     "win": {
       "target": "nsis"
     }

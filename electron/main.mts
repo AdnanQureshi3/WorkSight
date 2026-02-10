@@ -19,9 +19,12 @@ const __dirname = path.dirname(__filename);
 let win: BrowserWindow;
 let trackerProcess: any = null;
 
-const trackerExe = app.isPackaged
+
+  const trackerExe = app.isPackaged
   ? path.join(process.resourcesPath, "worksight-tracker.exe")
-  : path.join(__dirname, "../resources/worksight-tracker.exe");
+  : path.join(__dirname, "../../python/dist/worksight-tracker.exe");
+
+
 
 app.setLoginItemSettings({
   openAtLogin: true,
@@ -48,42 +51,6 @@ win.loadFile(uiPath);
  
 
 });
-
-// START tracking
-ipcMain.on("start-tracking", () => {
-  console.log("Start tracking requested");
-  if (trackerProcess) return "Already running";
-  const parentDir = path.resolve(__dirname, "..");
-  // const parentDir = path.dirname(__dirname); //both work and gives same result
-
-  const pythonPath = path.join(
-    parentDir,
-    "../python/venv/Scripts/python.exe"
-  );
-
-  const scriptPath = path.join(parentDir, "../python/tracker.py");
-  console.log("python Path:", pythonPath);
-  console.log("Starting tracker with script:", scriptPath);
-
-  trackerProcess = spawn(pythonPath, [scriptPath], {
-  windowsHide: true
-});
-
-trackerProcess.on("error", (err:Error) => {
-  console.error("Spawn error:", err);
-});
-
-  return "Tracking started";
-});
-
-// STOP tracking
-ipcMain.on("stop-tracking", () => {
-  if (!trackerProcess) return "Not running";
-  trackerProcess.kill();
-  trackerProcess = null;
-  return "Tracking stopped";
-});
-
 
 
 ipcMain.handle("get-category-breakdown", (event, startDate: string, endDate: string) => {
