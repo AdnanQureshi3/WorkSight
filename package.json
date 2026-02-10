@@ -3,16 +3,19 @@
   "version": "1.0.0",
   "main": "electron/dist/main.mjs",
   "scripts": {
-    "dev:ui": "cd ui && npm run dev",
-    "build:electron": "tsc -p electron",
-    "dev:electron": "cd ui && npm run build && cd .. && npm run build:electron && electron electron/dist/main.mjs",
-    "build": "npm run build:electron && electron-builder"
-  },
+  "dev:ui": "cd ui && npm run dev",
+  "build:electron": "tsc -p electron",
+  "dev:electron": "cd ui && npm run build && cd .. && npm run build:electron && electron electron/dist/main.mjs",
+  "prebuild": "taskkill /F /IM electron.exe || exit 0 & taskkill /F /IM node.exe || exit 0",
+  "build": "cd ui && npm run build && cd .. && npm run build:electron && electron-builder",
+  "postinstall": "electron-rebuild -f -w better-sqlite3"
+}
+,
   "dependencies": {
-    "better-sqlite3": "^12.5.0"
+    "better-sqlite3": "12.5.0"
   },
   "devDependencies": {
-    "electron": "^39.2.7",
+    "electron": "39.2.7",
     "electron-builder": "^26.0.12",
     "typescript": "^5.9.3"
   },
