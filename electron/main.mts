@@ -12,18 +12,6 @@ import { getDayAppUsage,updateUserProfile, getUserProfile, runSafeSQL, getWeekSu
 import { runPythonAI } from "./pythonRunner.js";
 
 
-protocol.registerSchemesAsPrivileged([
-  {
-    scheme: "app",
-    privileges: {
-      standard: true,
-      secure: true,
-      supportFetchAPI: true
-    }
-  }
-]);
-
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -43,16 +31,6 @@ app.setLoginItemSettings({
 app.whenReady().then(() => {
 
 
-protocol.registerFileProtocol("app", (request, callback) => {
-  const url = request.url.replace("app://", "");
-  const basePath = app.isPackaged
-    ? path.join(process.resourcesPath, "app.asar.unpacked/next/out")
-    : path.join(__dirname, "../../next/out");
-
-  const filePath = path.join(basePath, url || "index.html");
-  callback({ path: filePath });
-});
-
   win = new BrowserWindow({
     width: 1000,
     height: 700,
@@ -61,13 +39,8 @@ protocol.registerFileProtocol("app", (request, callback) => {
     },
   });
 
-  if (app.isPackaged) {
-  // win.loadURL("app://index.html");
-  win.loadURL("app:///");
-
-} else {
-  win.loadURL("http://localhost:3000");
-}
+const uiPath = path.join(__dirname, "../../dist/index.html");
+win.loadFile(uiPath);
   if(!trackerProcess){
     trackerProcess = exec(`"${trackerExe}"`);
 

@@ -5,11 +5,11 @@
   "scripts": {
     "dev:ui": "cd ui && npm run dev",
     "build:electron": "tsc -p electron",
-    "dev:electron": "npm run build:electron && electron electron/dist/main.mjs",
+    "dev:electron": "cd ui && npm run build && cd .. && npm run build:electron && electron electron/dist/main.mjs",
     "build": "npm run build:electron && electron-builder"
   },
   "dependencies": {
-    "better-sqlite3": "^9.4.0"
+    "better-sqlite3": "^12.5.0"
   },
   "devDependencies": {
     "electron": "^39.2.7",
@@ -24,11 +24,10 @@
       "**/node_modules/better-sqlite3/**"
     ],
     "files": [
-  "electron/dist/**/*",
-  "next/out/**/*",
-  "node_modules/**/*"
-]
-,
+      "electron/dist/**/*",
+      "dist/**/*",
+      "node_modules/**/*"
+    ],
     "extraResources": [
       {
         "from": "electron/resources/worksight-tracker.exe",
