@@ -1,13 +1,13 @@
 import { Card } from "./Card.js";
-import { useState, useMemo } from "react";
+import {useMemo } from "react";
 import {
-  Brain,
+
   Clock,
-  Loader2,
+  
   ChevronRight,
   Layout,
   BarChart3,
-  Sparkles
+
 } from "lucide-react";
 
 type DashboardViewProps = {
@@ -16,12 +16,7 @@ type DashboardViewProps = {
 };
 
 export default function DashboardView({ data, setView }: DashboardViewProps) {
-  const [aiAnalysis, setAiAnalysis] = useState<{
-    score: number;
-    summary: string;
-  } | null>(null);
 
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const totalMinutes = useMemo(
     () => Math.round(data.reduce((s, d) => s + d.total_sec, 0) / 60),

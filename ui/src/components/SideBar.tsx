@@ -1,23 +1,23 @@
-import React, { useState } from "react";
-import { LayoutDashboard, Target, History, User,Bot, Settings } from "lucide-react";
+
+import { LayoutDashboard,  History,Bot, Settings } from "lucide-react";
 import type{ SideBarProps } from "../types/types";
 
 function SideBar({ setRefresh, view, setView }: SideBarProps) {
-  const [isTracking, setIsTracking] = useState(false);
-  const toggleTracking = () => {
-   console.log("Toggling tracking. Current state:", isTracking);
-    try{
-      if (!isTracking) {
-        window.electronAPI.startTracking();
-      } else {
-        window.electronAPI.stopTracking();
-      } 
-       setIsTracking(!isTracking);
-    }
-    catch (error) {
-        console.error("Error toggling tracking:", error);
-      } 
-  }
+  // const [isTracking, setIsTracking] = useState(false);/
+  // const toggleTracking = () => {
+  //  console.log("Toggling tracking. Current state:", isTracking);
+  //   try{
+  //     if (!isTracking) {
+  //       window.electronAPI.startTracking();
+  //     } else {
+  //       window.electronAPI.stopTracking();
+  //     } 
+  //      setIsTracking(!isTracking);
+  //   }
+  //   catch (error) {
+  //       console.error("Error toggling tracking:", error);
+  //     } 
+  // }
  
 
   return (
