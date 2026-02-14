@@ -1,19 +1,19 @@
 {
   "name": "worksight",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "electron/dist/main.mjs",
   "scripts": {
-  "dev:ui": "cd ui && npm run dev",
-  "build:electron": "tsc -p electron",
-  "dev:test": "npm run build:electron && electron electron/dist/main.mjs",
-  "start": "cd ui && npm run build && cd .. && npm run build:electron && electron electron/dist/main.mjs",
-  "prebuild": "taskkill /F /IM electron.exe || exit 0 & taskkill /F /IM node.exe || exit 0",
-  "build": "cd ui && npm run build && cd .. && npm run build:electron && electron-builder",
-  "postinstall": "electron-rebuild -f -w better-sqlite3"
-}
-,
+    "dev:ui": "cd ui && npm run dev",
+    "build:electron": "tsc -p electron",
+    "dev:test": "npm run build:electron && electron electron/dist/main.mjs",
+    "start": "cd ui && npm run build && cd .. && npm run build:electron && electron electron/dist/main.mjs",
+    "prebuild": "taskkill /F /IM electron.exe || exit 0 & taskkill /F /IM node.exe || exit 0",
+    "build": "cd ui && npm run build && cd .. && npm run build:electron && electron-builder",
+    "postinstall": "electron-rebuild -f -w better-sqlite3"
+  },
   "dependencies": {
-    "better-sqlite3": "12.5.0"
+    "better-sqlite3": "12.5.0",
+    "electron-updater": "^6.7.3"
   },
   "devDependencies": {
     "electron": "39.2.7",
@@ -29,20 +29,26 @@
     ],
     "files": [
       "electron/dist/**/*",
-      "dist/**/*",
-      "node_modules/**/*"
+      "dist/**/*"
+    ],
+    "compression": "maximum",
+    "publish": [
+    {
+      "provider": "github",
+      "owner": "AdnanQureshi3",
+      "repo": "WorkSight"
+    }
     ],
     "extraResources": [
-  {
-    "from": "electron/resources/worksight-tracker.exe",
-    "to": "worksight-tracker.exe"
-  },
-  {
-    "from": "electron/resources/ai-worker.exe",
-    "to": "ai-worker.exe"
-  }
-]
-,
+      {
+        "from": "electron/resources/worksight-tracker.exe",
+        "to": "worksight-tracker.exe"
+      },
+      {
+        "from": "electron/resources/ai-worker.exe",
+        "to": "ai-worker.exe"
+      }
+    ],
     "win": {
       "target": "nsis",
       "icon": "build/icon.ico"

@@ -3,6 +3,7 @@ import path from "path";
 import { spawn } from "child_process";
 import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
+import { autoUpdater } from "electron-updater"
 
 import { exec } from "child_process";
 
@@ -32,6 +33,20 @@ app.setLoginItemSettings({
 });
 
 app.whenReady().then(() => {
+  
+  autoUpdater.autoDownload = true
+  autoUpdater.autoInstallOnAppQuit = true
+
+  autoUpdater.on("update-available", () => {
+    console.log("Update available")
+  })
+
+  autoUpdater.on("update-downloaded", () => {
+    console.log("Update downloaded")
+  })
+
+
+  autoUpdater.checkForUpdatesAndNotify()
 
 
   win = new BrowserWindow({
