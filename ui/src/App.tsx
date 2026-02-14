@@ -15,13 +15,20 @@ export default function App() {
 
   const [dayAppUsage, setDayAppUsage] = useState<any[]>([]);
   const [refresh, setRefresh] = useState<boolean>(false);
-
+  const [selectedDate, setSelectedDate] = useState(new Date());
   useEffect(() => {
-    const localtoday = new Date().toLocaleDateString("en-CA");
+    const localtoday = selectedDate.toLocaleDateString("en-CA");
     window.electronAPI.getDayAppUsage(localtoday).then((data) => {
       setDayAppUsage(data);
     });
-  }, [refresh]);
+  }, [refresh, selectedDate]);
+  const changeDate = (days: number) => {
+    const newDate = new Date(selectedDate);
+    newDate.setDate(newDate.getDate() + days);
+    setSelectedDate(newDate);
+  };
+
+  // const goToToday = () => setSelectedDate(new Date());
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#0c1021] text-slate-200">
@@ -30,7 +37,13 @@ export default function App() {
       <main className="ml-64 flex-1 p-8 overflow-hidden">
         {view === "dashboard" && (
           <div className="h-full overflow-y-auto">
-            <DashboardView data={dayAppUsage} setView={setView} />
+            <DashboardView 
+            data={dayAppUsage} setView={setView} 
+            currentDate={selectedDate}
+             onPrevDay={() => changeDate(-1)}
+              onNextDay={() => changeDate(1)}
+              onToday={() => setSelectedDate(new Date())}
+            />
           </div>
         )}
 

@@ -13,10 +13,7 @@ export type ParsedActivity = {
   time: string;
 };
 
-export type DashboardViewProps = {
- 
-  setView: (v: "dashboard" | "ai" | "history" | "detail" | "profile") => void;
-};
+
 export type SideBarProps = {
  setRefresh: React.Dispatch<React.SetStateAction<boolean>>
 
