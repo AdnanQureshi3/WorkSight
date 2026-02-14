@@ -6,7 +6,7 @@
   "dev:ui": "cd ui && npm run dev",
   "build:electron": "tsc -p electron",
   "dev:test": "npm run build:electron && electron electron/dist/main.mjs",
-  "dev:electron": "cd ui && npm run build && cd .. && npm run build:electron && electron electron/dist/main.mjs",
+  "start": "cd ui && npm run build && cd .. && npm run build:electron && electron electron/dist/main.mjs",
   "prebuild": "taskkill /F /IM electron.exe || exit 0 & taskkill /F /IM node.exe || exit 0",
   "build": "cd ui && npm run build && cd .. && npm run build:electron && electron-builder",
   "postinstall": "electron-rebuild -f -w better-sqlite3"
@@ -44,7 +44,8 @@
 ]
 ,
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "build/icon.ico"
     }
   }
 }
