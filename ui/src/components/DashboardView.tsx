@@ -16,6 +16,7 @@ export default function DashboardView({ data, setView, currentDate, onPrevDay, o
   const isToday = currentDate.toLocaleDateString() === new Date().toLocaleDateString();
 
   const unitConversion = (minutes: number) => {
+    if(minutes < 1) return "<1 min";
     if (minutes < 60) return `${minutes} min`;
     const hrs = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -41,19 +42,42 @@ export default function DashboardView({ data, setView, currentDate, onPrevDay, o
             Activity <span className="text-blue-500 underline decoration-blue-500/30 underline-offset-8">Overview</span>
           </h2>
           <div className="flex items-center gap-3 mt-4">
-            <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-1">
-              <button onClick={onPrevDay} className="p-1 hover:text-blue-500 transition-colors"><ChevronLeft size={20}/></button>
-              <span className="px-4 text-sm font-bold  text-center">
-                {isToday ? "Today" : currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-              </span>
-              <button onClick={onNextDay} className="p-1 hover:text-blue-500 transition-colors"><ChevronRight size={20}/></button>
-            </div>
-            {!isToday && (
-              <button onClick={onToday} className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all flex items-center gap-1 text-xs font-bold">
-                <RotateCcw size={14}/> TODAY
-              </button>
-            )}
-          </div>
+  <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-1">
+    {/* Previous Day Button - Always Enabled */}
+    <button 
+      onClick={onPrevDay} 
+      className="p-1 hover:text-blue-500 cursor-pointer transition-colors"
+    >
+      <ChevronLeft size={20}/>
+    </button>
+    
+    <span className="px-4 text-sm font-bold text-center">
+      {isToday ? "Today" : currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+    </span>
+
+    {/* Next Day Button - Disabled if isToday is true */}
+    <button 
+      onClick={onNextDay} 
+      disabled={isToday}
+      className={`p-1 transition-colors  ${
+        isToday 
+          ? 'opacity-20 cursor-not-allowed text-slate-600' 
+          : 'hover:text-blue-500 text-slate-100 cursor-pointer'
+      }`}
+    >
+      <ChevronRight size={20}/>
+    </button>
+  </div>
+
+  {!isToday && (
+    <button 
+      onClick={onToday} 
+      className="p-2 cursor-pointer text-blue-400 hover:bg-blue-500/10 rounded-lg transition-all flex items-center gap-1 text-xs font-bold"
+    >
+      <RotateCcw size={14}/> TODAY
+    </button>
+  )}
+</div>
         </div>
         <div className="text-right">
           <p className="text-slate-400 text-sm flex items-center justify-end gap-2">
@@ -88,7 +112,7 @@ export default function DashboardView({ data, setView, currentDate, onPrevDay, o
             <div key={i} className="group">
               <div className="flex justify-between text-sm mb-2">
                 <span className="font-semibold text-slate-200 group-hover:text-blue-400 transition-colors">{a.app.split(".")[0]}</span>
-                <span className="text-slate-400 tabular-nums">{a.min} min</span>
+                <span className="text-slate-400 tabular-nums">{unitConversion(a.min)}</span>
               </div>
               <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                 <div className="h-full rounded-full bg-blue-500 transition-all duration-700" style={{ width: `${a.pct}%` }} />
