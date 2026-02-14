@@ -42,6 +42,10 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getModelSupported: () =>
     ipcRenderer.invoke("get-model-supported"),
 
+
+  onUpdateStatus: (callback: (message: string) => void) =>
+    ipcRenderer.on("update-status", (_event, message) => callback(message)),
+
   
 });
 

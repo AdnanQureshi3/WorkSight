@@ -27,7 +27,9 @@ export default function App() {
     newDate.setDate(newDate.getDate() + days);
     setSelectedDate(newDate);
   };
-
+useEffect(() => {
+  window.electronAPI.onUpdateStatus((msg) => console.log("[Updater]:", msg));
+}, []);
   // const goToToday = () => setSelectedDate(new Date());
 
   return (

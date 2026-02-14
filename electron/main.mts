@@ -3,8 +3,8 @@ import path from "path";
 import { spawn } from "child_process";
 import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
-import { autoUpdater } from "electron-updater"
-
+import updater from "electron-updater"
+const { autoUpdater } = updater
 import { exec } from "child_process";
 
 import { getDayAppUsage,updateUserProfile, getUserProfile, runSafeSQL, getWeekSummary,
@@ -60,6 +60,13 @@ app.whenReady().then(() => {
 
 const uiPath = path.join(__dirname, "../../dist/index.html");
 win.loadFile(uiPath);
+
+autoUpdater.on("update-available", () => win.webContents.send("update-status", "Downloading..."));
+autoUpdater.on("update-downloaded", () => win.webContents.send("update-status", "Ready to install."));
+
+win.webContents.on('did-finish-load', () => {
+  autoUpdater.checkForUpdatesAndNotify();
+});
   if(!trackerProcess){
     trackerProcess = exec(`"${trackerExe}"`);
 

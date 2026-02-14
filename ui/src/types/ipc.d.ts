@@ -21,6 +21,8 @@ export interface IElectronAPI {
 
   saveApiKeyForModel: (provider: string, model: string, apiKey: string) => Promise<void>;
   getModelSupported: () => Promise<{provider: string, model: string}[]>;
+  onUpdateStatus: (callback: (message: string) => void) => void;
+
 }
 
 declare global {
