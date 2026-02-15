@@ -1,7 +1,5 @@
 import { app, BrowserWindow, ipcMain, protocol } from "electron";
 import path from "path";
-import { spawn } from "child_process";
-import Database from "better-sqlite3";
 import { fileURLToPath } from "url";
 import updater from "electron-updater"
 const { autoUpdater } = updater
@@ -65,15 +63,15 @@ app.whenReady().then(() => {
   });
 
   autoUpdater.on("update-downloaded", () => {
-    win.webContents.send("update-status", "Installing update...");
+    win.webContents.send("update-status", "Installing update... Please wait.");
 
+     setTimeout(() => {
     if (trackerProcess) {
       trackerProcess.kill();
     }
 
-    setImmediate(() => {
-      autoUpdater.quitAndInstall(true, true);
-    });
+    autoUpdater.quitAndInstall(false, true);
+  }, 2500);
   });
 
   autoUpdater.on("error", (err) => {
