@@ -33,21 +33,6 @@ app.setLoginItemSettings({
 });
 
 app.whenReady().then(() => {
-  
-  autoUpdater.autoDownload = true
-  autoUpdater.autoInstallOnAppQuit = true
-
-  autoUpdater.on("update-available", () => {
-    console.log("Update available")
-  })
-
-  autoUpdater.on("update-downloaded", () => {
-    console.log("Update downloaded")
-  })
-
-
-  autoUpdater.checkForUpdatesAndNotify()
-
 
   win = new BrowserWindow({
     width: 1000,
@@ -58,20 +43,44 @@ app.whenReady().then(() => {
     },
   });
 
-const uiPath = path.join(__dirname, "../../dist/index.html");
-win.loadFile(uiPath);
+  const uiPath = path.join(__dirname, "../../dist/index.html");
+  win.loadFile(uiPath);
 
-autoUpdater.on("update-available", () => win.webContents.send("update-status", "Downloading..."));
-autoUpdater.on("update-downloaded", () => win.webContents.send("update-status", "Ready to install."));
-
-win.webContents.on('did-finish-load', () => {
-  autoUpdater.checkForUpdatesAndNotify();
-});
-  if(!trackerProcess){
+  if (!trackerProcess) {
     trackerProcess = exec(`"${trackerExe}"`);
-
   }
- 
+
+  autoUpdater.autoDownload = true;
+
+  autoUpdater.on("checking-for-update", () => {
+    win.webContents.send("update-status", "Checking for update...");
+  });
+
+  autoUpdater.on("update-available", () => {
+    win.webContents.send("update-status", "Downloading update...");
+  });
+
+  autoUpdater.on("update-not-available", () => {
+    win.webContents.send("update-status", "No update available.");
+  });
+
+  autoUpdater.on("update-downloaded", () => {
+    win.webContents.send("update-status", "Installing update...");
+
+    if (trackerProcess) {
+      trackerProcess.kill();
+    }
+
+    setImmediate(() => {
+      autoUpdater.quitAndInstall(true, true);
+    });
+  });
+
+  autoUpdater.on("error", (err) => {
+    win.webContents.send("update-status", "Update error: " + err.message);
+  });
+
+  autoUpdater.checkForUpdates();
 
 });
 
