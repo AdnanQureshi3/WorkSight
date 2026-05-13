@@ -38,6 +38,9 @@ export default function AIQuery() {
   const [username, setUsername] = useState("");
   const [agentNickname, setAgentNickname] = useState("");
 
+  const [thinkingSeconds, setThinkingSeconds] = useState(0);
+const [lastThinkingTime, setLastThinkingTime] = useState<number | null>(null);
+
   const bottomRef = useRef<HTMLDivElement>(null);
 
   /* -------- COPY HELPER -------- */
@@ -52,6 +55,21 @@ export default function AIQuery() {
       setAgentNickname(data.agent_nickname || "");
     });
   }, []);
+
+  /* -------- THINKING TIMER -------- */
+  useEffect(() => {
+  let interval: number;
+
+  if (loading) {
+    setThinkingSeconds(0);
+
+    interval = window.setInterval(() => {
+      setThinkingSeconds((prev) => prev + 1);
+    }, 1000);
+  }
+
+  return () => clearInterval(interval);
+}, [loading]);
 
   /* -------- AUTOSCROLL -------- */
   useEffect(() => {
@@ -100,6 +118,7 @@ export default function AIQuery() {
         },
       ]);
     } finally {
+        setLastThinkingTime(thinkingSeconds);
       setLoading(false);
     }
   }
@@ -169,7 +188,15 @@ export default function AIQuery() {
                     : "bg-slate-800 text-slate-200 rounded-bl-sm"
                 }`}
               >
-                {msg.content}
+                <div>{msg.content}</div>
+
+            {msg.role === "assistant" &&
+              i === messages.length - 1 &&
+              lastThinkingTime !== null && (
+                <div className="text-[10px] text-slate-500 mt-1">
+                  Thought for {lastThinkingTime}s
+                </div>
+            )}
               </div>
 
               {/* COPY BUTTON */}
@@ -189,7 +216,7 @@ export default function AIQuery() {
         {loading && (
           <div className="flex">
             <div className="bg-slate-800 px-4 py-2 rounded-2xl text-sm text-slate-400 animate-pulse">
-              Thinking…
+              Thinking and Analyzing... ({thinkingSeconds}s)
             </div>
           </div>
         )}
