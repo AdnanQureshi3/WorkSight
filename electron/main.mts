@@ -57,6 +57,12 @@ app.whenReady().then(() => {
   autoUpdater.on("update-available", () => {
     win.webContents.send("update-status", "Downloading update...");
   });
+  autoUpdater.on("download-progress", (progress) => {
+  win.webContents.send(
+    "update-status",
+    `Downloading update... ${progress.percent.toFixed(1)}%`
+  );
+});
 
   autoUpdater.on("update-not-available", () => {
     win.webContents.send("update-status", "No update available.");

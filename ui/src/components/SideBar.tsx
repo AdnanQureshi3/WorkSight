@@ -28,7 +28,7 @@ function SideBar({ setRefresh, view, setView }: SideBarProps) {
           WORKSIGHT.
         </h1>
         <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">
-          Terminal V1.0
+          Terminal V1.0.2
         </span>
       </div>
 
