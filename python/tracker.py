@@ -69,9 +69,9 @@ def main():
             app, title = get_active_app()
 
             if app != last_app or title != last_title:
-                # print(f"Switched from {last_app} - {last_title} to {app} - {title}")
                 end_time = datetime.datetime.now()
                 duration = int((end_time - start_time).total_seconds())
+                # print(f"Entry saved for {last_app} - {last_title}, duration: {duration} seconds   ")
 
                 if duration >= 5 and last_app != "Unknown" and last_app != "" and last_app != "LockApp.exe":
                     

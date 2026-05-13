@@ -15,9 +15,109 @@ import { runPythonAI } from "./pythonRunner";
 
   return "Something went wrong while contacting the AI service.";
 }
+function getHardCoreSQLQuery(user_query: string) {
+  const query = user_query.toLowerCase();
+
+  const map = {
+    today: `
+SELECT 
+  window_title,
+  app_name,
+  SUM(duration_sec) AS total_duration
+FROM activity_log
+WHERE date(start_time) = date('now')
+GROUP BY window_title, app_name
+ORDER BY total_duration DESC
+`,
+
+    yesterday: `
+SELECT 
+  window_title,
+  app_name,
+  SUM(duration_sec) AS total_duration
+FROM activity_log
+WHERE date(start_time) = date('now', '-1 day')
+GROUP BY window_title, app_name
+ORDER BY total_duration DESC
+`,
+
+    week: `
+SELECT 
+  window_title,
+  app_name,
+  SUM(duration_sec) AS total_duration
+FROM activity_log
+WHERE start_time BETWEEN datetime('now', '-7 days') AND datetime('now')
+GROUP BY window_title, app_name
+ORDER BY total_duration DESC
+`,
+
+    "last week": `
+SELECT 
+  window_title,
+  app_name,
+  SUM(duration_sec) AS total_duration
+FROM activity_log
+WHERE start_time BETWEEN datetime('now', '-14 days') 
+AND datetime('now', '-7 days')
+GROUP BY window_title, app_name
+ORDER BY total_duration DESC
+`,
+
+    month: `
+SELECT 
+  window_title,
+  app_name,
+  SUM(duration_sec) AS total_duration
+FROM activity_log
+WHERE strftime('%Y-%m', start_time) = strftime('%Y-%m', 'now')
+GROUP BY window_title, app_name
+ORDER BY total_duration DESC
+`,
+
+    "last month": `
+SELECT 
+  window_title,
+  app_name,
+  SUM(duration_sec) AS total_duration
+FROM activity_log
+WHERE strftime('%Y-%m', start_time) = strftime('%Y-%m', 'now', '-1 month')
+GROUP BY window_title, app_name
+ORDER BY total_duration DESC
+`
+  };
+
+  if (query.includes("last week")) return map["last week"];
+  if (query.includes("last month")) return map["last month"];
+
+  if (
+    query.includes("today") ||
+    query.includes("day")
+  ) {
+    return map.today;
+  }
+
+  if (query.includes("yesterday")) {
+    return map.yesterday;
+  }
+
+  if (query.includes("week")) {
+    return map.week;
+  }
+
+  if (query.includes("month")) {
+    return map.month;
+  }
+  
+  return "NOT_FOUND";
+}
 export async function AiQueryHandler( messages: any[], model: string, provider: string) {
     const user = getUserProfile();
     const user_query = messages[messages.length - 1]?.content ?? "";
+
+   
+    
+
     const api_key = getApiKeyForModel(provider);
 
     if (!api_key)
@@ -28,11 +128,33 @@ export async function AiQueryHandler( messages: any[], model: string, provider: 
           analysis: `No API key found for ${provider}. Please add it in Profile → LLM Settings.`
         }
       };
+      
 
-    let gen, sql = "", analysis = { analysis: "" };
+
 
     // ---- SQL generation
-    try {
+
+    let gen, sql = "", analysis = { analysis: "" };
+     const hardCodedSQL = getHardCoreSQLQuery(user_query);
+    console.log("Hardcoded SQL check:", { hardCodedSQL });
+
+    if (hardCodedSQL !== "NOT_FOUND") { 
+       gen = {
+    status: "ok",
+    sql_generated: "yes",
+    sql: hardCodedSQL
+  };
+
+  sql = hardCodedSQL;
+
+  console.log("Using hardcoded SQL: and NO AI", sql);
+
+      
+
+    }
+    else {
+      try {
+        console.log("Running AI SQL generation with model:", model, "and provider:", provider);
       gen = await runPythonAI({
         type: "generate_sql",
         messages, user_query, user,
@@ -48,6 +170,9 @@ export async function AiQueryHandler( messages: any[], model: string, provider: 
         }
       };
     }
+
+    }
+    
 
     if (!gen || gen.status !== "ok")
       return {
