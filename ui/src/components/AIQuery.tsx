@@ -4,6 +4,7 @@ import {Copy } from "lucide-react";
 type Message = {
   role: "user" | "assistant";
   content: string;
+  thinkingTime?: number;
 };
 
 const STORAGE_KEY = "worksight_ai_chat";
@@ -39,7 +40,6 @@ export default function AIQuery() {
   const [agentNickname, setAgentNickname] = useState("");
 
   const [thinkingSeconds, setThinkingSeconds] = useState(0);
-const [lastThinkingTime, setLastThinkingTime] = useState<number | null>(null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -83,6 +83,7 @@ const [lastThinkingTime, setLastThinkingTime] = useState<number | null>(null);
 
   async function run() {
     if (!prompt.trim()) return;
+     const startTime = Date.now();
 
     const userMessage: Message = { role: "user", content: prompt };
     const nextMessages = [...messages, userMessage];
@@ -103,11 +104,15 @@ const [lastThinkingTime, setLastThinkingTime] = useState<number | null>(null);
       setMessages((prev) => [
         ...prev,
         {
-          role: "assistant",
-          content:
-            res?.analysis?.analysis ||
-            "I couldn’t understand that. Try asking differently.",
-        },
+  role: "assistant",
+  content:
+    res?.analysis?.analysis ||
+    "I couldn’t understand that. Try asking differently.",
+  thinkingTime: Math.max(
+  1,
+  Math.floor((Date.now() - startTime) / 1000)
+)
+},
       ]);
     } catch {
       setMessages((prev) => [
@@ -115,10 +120,13 @@ const [lastThinkingTime, setLastThinkingTime] = useState<number | null>(null);
         {
           role: "assistant",
           content: "The AI service is currently unavailable.",
+          thinkingTime: Math.max(
+  1,
+  Math.floor((Date.now() - startTime) / 1000)
+)
         },
       ]);
     } finally {
-        setLastThinkingTime(thinkingSeconds);
       setLoading(false);
     }
   }
@@ -191,12 +199,11 @@ const [lastThinkingTime, setLastThinkingTime] = useState<number | null>(null);
                 <div>{msg.content}</div>
 
             {msg.role === "assistant" &&
-              i === messages.length - 1 &&
-              lastThinkingTime !== null && (
-                <div className="text-[10px] text-slate-500 mt-1">
-                  Thought for {lastThinkingTime}s
-                </div>
-            )}
+  msg.thinkingTime !== undefined && (
+    <div className="text-[10px] text-slate-500 mt-1">
+      Thought for {msg.thinkingTime}s
+    </div>
+)}
               </div>
 
               {/* COPY BUTTON */}

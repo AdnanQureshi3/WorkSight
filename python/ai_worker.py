@@ -103,7 +103,7 @@ SQL rules (STRICT — DO NOT CHANGE):
 - No markdown, no backticks, no comments.
 - One executable SQLite SELECT query only.
 - Always:
-  GROUP BY window_title, app_name
+  GROUP BY app_name
   Use SUM(duration_sec) AS total_duration
 
 Data model rules (CRITICAL):
@@ -123,7 +123,7 @@ Semantic intent rules:
   dont use .com, use only names like github, gitlab, leetcode, hackerrank
 
 Time rules:
-- If no date mentioned → last 7 days.
+- If no date mentioned → last 3 days.
 - If a specific day is mentioned (today, yesterday, kal, parso, etc.) → only that date.
 
 Analysis intent:
@@ -133,12 +133,12 @@ Analysis intent:
   Example user queries for analysis:
   SQL EXAMPLES (REFERENCE ONLY — FOLLOW THIS STYLE):
 
-Example 1: Social media time waste (last 7 days)
+Example 1: Social media time waste (last 3 days)
 User intent:
 "Social media par time waste toh nahi kar raha?"
 
 SQL example:
-SELECT window_title, app_name, SUM(duration_sec) AS total_duration
+SELECT app_name, SUM(duration_sec) AS total_duration
 FROM activity_log
 WHERE start_time BETWEEN 'YYYY-MM-DD 00:00:00' AND 'YYYY-MM-DD 23:59:59'
   AND (
@@ -154,16 +154,16 @@ WHERE start_time BETWEEN 'YYYY-MM-DD 00:00:00' AND 'YYYY-MM-DD 23:59:59'
     OR window_title LIKE '%snapchat%'
     OR window_title LIKE '%whatsapp%'
   )
-GROUP BY window_title, app_name
+GROUP BY window_title app_name
 ORDER BY total_duration DESC
 
 
-Example 2: Coding analysis (last 7 days, category based)
+Example 2: Coding analysis (last 3 days, category based)
 User intent:
 "coding kesi chal rahi hai?"
 
 SQL example:
-SELECT window_title, app_name, SUM(duration_sec) AS total_duration
+SELECT app_name, SUM(duration_sec) AS total_duration
 FROM activity_log
 WHERE start_time BETWEEN 'YYYY-MM-DD 00:00:00' AND 'YYYY-MM-DD 23:59:59'
   AND (
@@ -173,7 +173,7 @@ WHERE start_time BETWEEN 'YYYY-MM-DD 00:00:00' AND 'YYYY-MM-DD 23:59:59'
     OR window_title LIKE '%leetcode%'
     OR window_title LIKE '%hackerrank%'
   )
-GROUP BY window_title, app_name
+GROUP BY app_name
 ORDER BY total_duration DESC
 
 
@@ -182,10 +182,10 @@ User intent:
 "kal kya kiya maine?"
 
 SQL example:
-SELECT window_title, app_name, SUM(duration_sec) AS total_duration
+SELECT  app_name, SUM(duration_sec) AS total_duration
 FROM activity_log
 WHERE date(start_time) = date('now','-1 day')
-GROUP BY window_title, app_name
+GROUP BY app_name
 ORDER BY total_duration DESC
 
 
@@ -194,10 +194,10 @@ User intent:
 "aaj kya kya kiya?"
 
 SQL example:
-SELECT window_title, app_name, SUM(duration_sec) AS total_duration
+SELECT app_name, SUM(duration_sec) AS total_duration
 FROM activity_log
 WHERE date(start_time) = date('now')
-GROUP BY window_title, app_name
+GROUP BY  app_name
 ORDER BY total_duration DESC
 
 

@@ -1,6 +1,6 @@
 {
   "name": "worksight",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "electron/dist/main.mjs",
   "scripts": {
     "dev:ui": "cd ui && npm run dev",

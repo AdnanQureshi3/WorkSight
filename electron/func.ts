@@ -26,7 +26,7 @@ SELECT
   SUM(duration_sec) AS total_duration
 FROM activity_log
 WHERE date(start_time) = date('now')
-GROUP BY window_title, app_name
+GROUP BY app_name
 ORDER BY total_duration DESC
 `,
 
@@ -37,7 +37,7 @@ SELECT
   SUM(duration_sec) AS total_duration
 FROM activity_log
 WHERE date(start_time) = date('now', '-1 day')
-GROUP BY window_title, app_name
+GROUP BY app_name
 ORDER BY total_duration DESC
 `,
 
@@ -48,7 +48,7 @@ SELECT
   SUM(duration_sec) AS total_duration
 FROM activity_log
 WHERE start_time BETWEEN datetime('now', '-7 days') AND datetime('now')
-GROUP BY window_title, app_name
+GROUP BY app_name
 ORDER BY total_duration DESC
 `,
 
@@ -60,7 +60,7 @@ SELECT
 FROM activity_log
 WHERE start_time BETWEEN datetime('now', '-14 days') 
 AND datetime('now', '-7 days')
-GROUP BY window_title, app_name
+GROUP BY app_name
 ORDER BY total_duration DESC
 `,
 
@@ -71,7 +71,7 @@ SELECT
   SUM(duration_sec) AS total_duration
 FROM activity_log
 WHERE strftime('%Y-%m', start_time) = strftime('%Y-%m', 'now')
-GROUP BY window_title, app_name
+GROUP BY app_name
 ORDER BY total_duration DESC
 `,
 
@@ -82,7 +82,7 @@ SELECT
   SUM(duration_sec) AS total_duration
 FROM activity_log
 WHERE strftime('%Y-%m', start_time) = strftime('%Y-%m', 'now', '-1 month')
-GROUP BY window_title, app_name
+GROUP BY app_name
 ORDER BY total_duration DESC
 `
   };

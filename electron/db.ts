@@ -29,10 +29,7 @@ export function updateUserProfile(profileData: any) {
       email = ?,
       system_prompt = ?,
       final_goal = ?,
-      productive_apps = ?,
-      distraction_apps = ?,
-      neutral_apps = ?,
-      api_key= ?
+      api_key = ?
     WHERE id = 1
   `).run(
     profileData.username,
@@ -40,9 +37,6 @@ export function updateUserProfile(profileData: any) {
     profileData.email,
     profileData.system_prompt,
     profileData.final_goal,
-    JSON.stringify(profileData.productive_apps || []),
-    JSON.stringify(profileData.distraction_apps || []),
-    JSON.stringify(profileData.neutral_apps || []),
     profileData.api_key
   );
 }
@@ -53,19 +47,16 @@ function ensureUserProfileTable() {
   // create table safely
  
   db.prepare(`
-    CREATE TABLE IF NOT EXISTS user_profile (
-      id INTEGER PRIMARY KEY,
-      username TEXT,
-      agent_nickname TEXT,
-      email TEXT,
-      system_prompt TEXT,
-      final_goal TEXT,
-      productive_apps TEXT,
-      distraction_apps TEXT,
-      neutral_apps TEXT,
-      api_key TEXT
-    )
-  `).run();
+  CREATE TABLE IF NOT EXISTS user_profile (
+    id INTEGER PRIMARY KEY,
+    username TEXT,
+    agent_nickname TEXT,
+    email TEXT,
+    system_prompt TEXT,
+    final_goal TEXT,
+    api_key TEXT
+  )
+`).run();
 
 
   // // ensure row
@@ -104,16 +95,41 @@ function ensureUserProfileTable() {
 export function getUserProfile() {
   ensureUserProfileTable();
 
-  const row = db.prepare(
-    "SELECT * FROM user_profile WHERE id = 1"
-  ).get();
+  let row = db.prepare(
+  "SELECT * FROM user_profile WHERE id = 1"
+).get() as any;
 
-  return {
-    ...row,
-    productive_apps: JSON.parse(row.productive_apps || "[]"),
-    distraction_apps: JSON.parse(row.distraction_apps || "[]"),
-    neutral_apps: JSON.parse(row.neutral_apps || "[]"),
-  };
+if (!row) {
+ db.prepare(`
+  INSERT INTO user_profile (
+    id,
+    username,
+    agent_nickname,
+    email,
+    system_prompt,
+    final_goal,
+    api_key
+  )
+  VALUES (
+    1,
+    '',
+    '',
+    '',
+    '',
+    '',
+    ''
+  )
+`).run();
+
+  row = db.prepare(
+    "SELECT * FROM user_profile WHERE id = 1"
+  ).get() as any;
+}
+
+return {
+  ...row,
+  
+};
 }
 
 
